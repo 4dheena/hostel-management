@@ -1,0 +1,226 @@
+/* ================= RESET ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background-color: #0e2f3a;
+  color: #ffffff;
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 60px;
+  background-color: #ffffff;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5px;
+}
+
+.logo span {
+  font-size: 30px;
+  font-weight: 800;
+  color: #000;
+  letter-spacing: 1px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.logo img {
+  height: 82px;
+  width: auto;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #555;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: #1aa6a6;
+}
+
+/* ================= BUTTONS ================= */
+.btn {
+  padding: 10px 22px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #1aa6a6, #4fd1c5);
+  color: #fff;
+}
+
+.btn.outline {
+  background: transparent;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+.btn.full {
+  width: 100%;
+}
+
+/* ================= HERO ================= */
+.hero {
+  position: relative;
+  height: 75vh;
+  background: url("assets/hostel.jpeg") center / cover no-repeat;
+  overflow: hidden;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.25)
+  );
+  z-index: 1;
+}
+
+.wave {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  padding: 80px;
+  gap: 40px;
+}
+
+.hero-left {
+  max-width: 55%;
+}
+
+.hero-left h1 {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.hero-left p {
+  font-size: 16px;
+  opacity: 0.9;
+  margin-bottom: 25px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.stats {
+  display: flex;
+  gap: 25px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.stats i {
+  color: #4fd1c5;
+  margin-right: 6px;
+}
+
+/* ================= LOGIN CARD ================= */
+.login-card {
+  width: 380px;
+  padding: 35px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(12px);
+}
+
+.login-card input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* ================= NAVY SECTION ================= */
+.navy-section {
+  background-color: #0e2f3a;
+  padding: 160px 80px 100px;
+  margin-top: -200px;
+}
+
+.navy-section h2 {
+  font-size: 22px;
+  margin-bottom: 30px;
+}
+
+/* ================= ROLE CARDS ================= */
+.role-cards {
+  display: flex;
+  gap: 20px;
+}
+
+.role-card {
+  flex: 1;
+  padding: 28px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.role-card i {
+  font-size: 28px;
+  color: #4fd1c5;
+}
+
+.role-card:hover {
+  background: rgba(79,209,197,0.25);
+}
+
+.role-card:active {
+  transform: scale(0.96);
+  box-shadow: inset 0 0 14px rgba(0,0,0,0.35);
+}
+
+.role-card.active {
+  background: rgba(79,209,197,0.25);
+  box-shadow: 0 0 18px rgba(79,209,197,0.4);
+}
+
+.role-card p {
+  font-size: 13px;
+  opacity: 0.85;
+}

@@ -3,16 +3,6 @@
 <head>
 <meta charset="utf-8" />
 <title>Hostel Registration</title>
-<style>
-  body { font-family: Arial, sans-serif; background:#f6f8fb; display:flex; align-items:center; justify-content:center; height:100vh; }
-  .card { background:#fff; padding:20px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); width:420px; }
-  label { display:block; margin-top:10px; font-size:14px; }
-  input, select, button { width:100%; padding:8px; margin-top:6px; box-sizing:border-box; }
-  .hidden { display:none; }
-  .row { display:flex; gap:8px; }
-  .row > input { flex:1; }
-  .hint { font-size:12px; color:#666; margin-top:6px; }
-</style>
 <script>
 function onDesignationChange() {
   const desig = document.getElementById('role').value;
