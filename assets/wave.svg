@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1440 600"
+  preserveAspectRatio="none">
+
+  <defs>
+    <!-- Stronger depth gradient (matches reference shade) -->
+    <linearGradient id="waveFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#7fdbe8" stop-opacity="0" />
+      <stop offset="25%"  stop-color="#7fdbe8" stop-opacity="0.18" />
+      <stop offset="55%"  stop-color="#4fbfd4" stop-opacity="0.55" />
+      <stop offset="80%"  stop-color="#2fa4bf" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#1f8ea8" stop-opacity="0.85" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sealed wave shape -->
+  <path
+    d="
+      M 0 460
+      C 180 280, 360 520, 600 440
+      C 820 360, 1020 240, 1220 300
+      C 1340 340, 1400 380, 1440 400
+      L 1440 600
+      L 0 600
+      Z
+    "
+    fill="url(#waveFill)"
+  />
+
+</svg>
+

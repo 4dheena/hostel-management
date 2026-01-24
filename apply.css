@@ -1,0 +1,218 @@
+/* ================= RESET ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ================= PAGE BACKGROUND ================= */
+body {
+  background: #f4f7fb;   /* LIGHT, CLEAN */
+  color: #1f2937;
+}
+
+/* ================= MAIN CONTAINER ================= */
+.container {
+  max-width: 900px;      /* 🔥 KEY FIX: smaller centered box */
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* ================= HEADER ================= */
+h1 {
+  font-size: 28px;
+  margin-bottom: 6px;
+  color: #1e293b;
+}
+
+p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+/* ================= STATUS ================= */
+.status-open {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.status-closed {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* ================= STEPS ================= */
+.steps {
+  display: flex;
+  gap: 14px;
+  margin: 28px 0;
+}
+
+.step {
+  flex: 1;
+  padding: 12px 0;
+  text-align: center;
+  border-radius: 30px;
+  background: #e5e7eb;
+  cursor: pointer;
+  font-weight: 600;
+  color: #374151;
+  transition: all 0.25s ease;
+}
+
+.step:hover {
+  background: #dbeafe;
+}
+
+.step.active {
+  background: linear-gradient(135deg, #1aa6a6, #4fd1c5);
+  color: #ffffff;
+}
+
+/* ================= SECTIONS ================= */
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+/* ================= CARD (FORM BOX) ================= */
+.card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 30px 34px;
+  margin-bottom: 26px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  font-size: 20px;
+  margin-bottom: 22px;
+  color: #1f2937;
+}
+
+/* ================= FORM GRID ================= */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 26px;    /* vertical | horizontal */
+}
+
+/* ================= LABELS ================= */
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ================= INPUTS ================= */
+input,
+select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #1aa6a6;
+  box-shadow: 0 0 0 2px rgba(26,166,166,0.2);
+}
+
+input[readonly] {
+  background: #f1f5f9;
+}
+
+input:disabled,
+select:disabled {
+  background: #e5e7eb;
+  cursor: not-allowed;
+}
+
+/* ================= FILE INPUT ================= */
+input[type="file"] {
+  height: auto;
+  padding: 8px;
+}
+
+/* ================= PRIORITY LAYOUT ================= */
+.priority-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 26px;
+}
+
+/* ================= INFO BOX ================= */
+.info-box {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 22px;
+  border: 1px solid #e5e7eb;
+}
+
+.info-box ul {
+  padding-left: 18px;
+}
+
+.info-box li {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+/* ================= ACTION BUTTONS ================= */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 32px;
+}
+
+/* BLUE TAPE STYLE BUTTONS */
+button {
+  padding: 12px 36px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #1e5aa8, #3b82f6);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 20px rgba(59,130,246,0.35);
+}
+
+button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .priority-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 14px;
+  }
+}
