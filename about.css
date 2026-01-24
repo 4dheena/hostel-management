@@ -1,0 +1,97 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f7fa;
+}
+
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #0a3d62;
+}
+
+.navbar .logo {
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.navbar a.active {
+    border-bottom: 2px solid #00d2d3;
+}
+
+/* HERO SECTION */
+.hero {
+    height: 60vh;
+    background: url("hostel.jpeg") center/cover no-repeat;
+    position: relative;
+}
+
+.overlay {
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.overlay h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.overlay p {
+    max-width: 700px;
+    font-size: 18px;
+}
+
+/* CONTENT */
+.content {
+    padding: 40px 80px;
+}
+
+.content h2 {
+    color: #0a3d62;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.content p {
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.content ul {
+    margin-left: 20px;
+}
+
+.content li {
+    margin-bottom: 8px;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #0a3d62;
+    color: white;
+}
