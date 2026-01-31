@@ -36,7 +36,7 @@ $distance_km = $application['distance_km'] ?? '';
 <head>
 <meta charset="UTF-8">
 <title>Hostel Application</title>
-<link rel="stylesheet" href="apply.css">
+<link rel="stylesheet" href="css/apply.css">
 </head>
 <body>
 
