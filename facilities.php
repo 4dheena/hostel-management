@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Facilities | ARUVI Hostel</title>
-    <link rel="stylesheet" href="facilities.css">
+    <link rel="stylesheet" href="assets/css/facilities.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 </head>
@@ -13,10 +13,10 @@
     <header class="navbar">
         <div class="logo">ARUVI</div>
         <nav>
-            <a href="index.html">Home</a>
-            <a href="about.html">About</a>
-            <a href="facilities.html" class="active">Facilities</a>
-            <a href="contact.html">Contact</a>
+            <a href="index.php">Home</a>
+            <a href="about.php">About</a>
+            <a href="facilities.php" class="active">Facilities</a>
+            <a href="contact.php">Contact</a>
         </nav>
     </header>
 
@@ -48,19 +48,19 @@
     <div class="rooms">
   <div class="room">
     <h3><u>  Single Room </u></h3><br>
-    <img src="assets/single.png" alt="Single Room">
+    <img src="assets/images/single.png" alt="Single Room">
     
   </div>
 
   <div class="room">
     <h3> <u> Double Sharing Room </u></h3><br>
-    <img src="assets/double.jpg" alt="Double Sharing Room">
+    <img src="assets/images/double.jpg" alt="Double Sharing Room">
     
   </div>
 
   <div class="room">
     <h3><u> Dorm </u></h3><br>
-    <img src="assets/dorm.png" alt="Dorm">
+    <img src="assets/images/dorm.png" alt="Dorm">
     
   </div>
 </div>
@@ -70,12 +70,12 @@
     <div class="rooms">
   <div class="room">
     <h3><u>Library</u></h3><br>
-    <img src="assets/library.jpg" alt="Library">
+    <img src="assets/images/library.jpg" alt="Library">
   </div>
 
   <div class="room">
     <h3><u>Lounge</u></h3><br>
-    <img src="assets/lounge.jpg" alt="Lounge">
+    <img src="assets/images/lounge.jpg" alt="Lounge">
   </div>
 </div>
 
