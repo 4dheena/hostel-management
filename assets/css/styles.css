@@ -83,7 +83,7 @@ body {
 .hero {
   position: relative;
   height: 75vh;
-  background: url("../assets/images/hostel.jpeg") center / cover no-repeat;
+  background: url("../images/hostel.jpeg") center / cover no-repeat;
   overflow: hidden;
 }
 

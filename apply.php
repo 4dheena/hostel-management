@@ -4,7 +4,7 @@
 <head> 
 <meta charset="UTF-8"> 
 <title>Hostel Application</title> 
-<link rel="stylesheet" href="css/apply.css"> 
+<link rel="stylesheet" href="assets/css/apply.css"> 
 </head> 
 <body> 
 
