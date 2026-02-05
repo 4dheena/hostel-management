@@ -1,0 +1,185 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f7fa;
+}
+
+/* NAVBAR */
+.navbar {
+    height: 5vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #0a3d62;
+}
+
+.navbar .logo {
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.navbar a.active {
+    border-bottom: 2px solid #00d2d3;
+}
+
+/* HERO SECTION */
+.hero {
+    
+    height: 30vh;
+    background: url("assets/hostel.jpeg") center/cover no-repeat;
+    position: relative;
+}
+
+.overlay {
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.overlay h1 {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.overlay p {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    max-width: 700px;
+    font-size: 18px;
+}
+
+/* CONTENT */
+.content {
+    padding: 40px 80px;
+}
+
+.content h2 {
+    
+    color: #0a3d62;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.content p {
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.content ul {
+    margin-left: 20px;
+}
+
+.content li {
+    margin-bottom: 8px;
+}
+
+/* FOOTER */
+footer {
+    height: 5vh;
+    text-align: center;
+    padding: 15px;
+    background-color: #0a3d62;
+    color: white;
+}
+.rooms {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.room img {
+  width: 350px;
+  height: auto;
+}
+
+.room h3 {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    
+    font-size: 22px;
+    color: #2c7a7b;
+  margin-top: 8px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.item span {
+    font-size: 26px;
+    color: #3b6cff;
+    background: #eef2ff;
+    padding: 14px;
+    border-radius: 50%;
+}
+
+.item p {
+    margin: 0;
+    font-size: 15px;
+}
+
+/* Centered & compact facilities layout */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    justify-content: center;
+    gap: 18px 35px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.item span {
+    font-size: 24px;
+    padding: 10px;
+}
+
+.item p {
+    font-size: 14px;
+    margin: 0;
+}
+.rooms {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 40px 0;
+}
+
+.room {
+  text-align: center;
+}
+
+.room img {
+  width: 390px;
+  height: auto;
+}
