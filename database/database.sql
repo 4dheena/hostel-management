@@ -115,4 +115,11 @@ ADD COLUMN income_certificate VARCHAR(255),
 ADD COLUMN pwd_certificate VARCHAR(255),
 ADD COLUMN id_proof VARCHAR(255);
 
+ALTER TABLE students
+ADD password_hash VARCHAR(255) NULL;
+
+ALTER TABLE hostel_applications
+ADD disability_percentage TINYINT NULL;
+
+
 

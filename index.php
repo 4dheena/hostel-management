@@ -24,15 +24,14 @@
     </div>
 
     <ul class="nav-links">
-      <li><a href="#about">About</a></li>
+      <li><a href="about.html">About</a></li>
       <li><a href="#facilities">Facilities</a></li>
-      <li><a href="contact.php">Contact</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#announcements">Announcements</a></li>
+      <li><a href="#rules">Rules</a></li>
+      <li><a href="#forms">Forms</a></li>
       <li><a href="#gallery">Gallery</a></li>
     </ul>
-
-    <a href="apply.php">
-  <button class="btn primary">Apply Now</button>
-</a>
 
   </nav>
 
@@ -55,7 +54,7 @@
         </p>
 
         <div class="hero-buttons">
-          <button class="btn primary">Register Here</button>
+          <a href="apply.php"><button class="btn primary">Apply now</button></a>
           <button class="btn outline">View Vacancy</button>
         </div>
 
@@ -67,45 +66,13 @@
       </div>
 
       <!-- Right -->
-      <div class="login-card">
+         <div class="login-card">
         <h3>User Authentication</h3>
-        <input type="text" placeholder="Institutional Email">
+        <input type="text" placeholder="Email">
         <input type="password" placeholder="Password">
         <button class="btn primary full">Sign In</button>
       </div>
     </div>
   </section>
 
-  <!-- ================= NAVY SECTION ================= -->
-  <section class="navy-section">
-    <h2>Who are you?</h2>
-
-    <div class="role-cards">
-      <button class="role-card">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <h4>Student</h4>
-        <p>Check Allotment / Pay Fees</p>
-      </button>
-
-      <button class="role-card">
-        <i class="fa-solid fa-user-shield"></i>
-        <h4>Warden</h4>
-        <p>Manage Leaves / Room Checks</p>
-      </button>
-
-      <button class="role-card">
-        <i class="fa-solid fa-gear"></i>
-        <h4>Admin</h4>
-        <p>System Config / Analytics</p>
-      </button>
-
-      <button class="role-card">
-        <i class="fa-solid fa-utensils"></i>
-        <h4>Secretary</h4>
-        <p>Mess Menu / Election Portal</p>
-      </button>
-    </div>
-  </section>
-
-</body>
-</html>
+ 
