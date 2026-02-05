@@ -12,25 +12,24 @@
   />
 
   <!-- CSS -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
 
   <!-- ================= NAVBAR ================= -->
   <nav class="navbar">
     <div class="logo">
-      <img src="assets/logo.jpeg" alt="Aruvi Logo">
+      <img src="assets/images/logo.jpeg" alt="Aruvi Logo">
       <span>ARUVI</span>
     </div>
 
     <ul class="nav-links">
-      <li><a href="about.html">About</a></li>
+      <li><a href="about.php">About</a></li>
       <li><a href="#facilities">Facilities</a></li>
       <li><a href="#contact">Contact</a></li>
       <li><a href="#announcements">Announcements</a></li>
       <li><a href="#rules">Rules</a></li>
       <li><a href="#forms">Forms</a></li>
-      <li><a href="#gallery">Gallery</a></li>
     </ul>
 
   </nav>
@@ -42,7 +41,7 @@
     <div class="overlay"></div>
 
     <!-- SVG wave -->
-    <img src="assets/wave.svg" class="wave" alt="wave design">
+    <img src="assets/images/wave.svg" class="wave" alt="wave design">
 
     <div class="hero-content">
       <!-- Left -->
