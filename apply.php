@@ -1,4 +1,42 @@
-<?php require_once 'database/db_connect.php'; /* ================= APPLICATION WINDOW ================= */ $result = $conn->query("SELECT start_date, end_date FROM application_settings WHERE id = 1"); $settings = $result->fetch_assoc(); $today = date('Y-m-d'); $editable = ($today >= $settings['start_date'] && $today <= $settings['end_date']); /* ================= STUDENT IDENTIFIER ================= */ /* TODO: replace with session later */ $student_email = 'student@example.com'; /* ================= LOAD APPLICATION ================= */ $stmt = $conn->prepare("SELECT * FROM hostel_applications WHERE student_email = ?"); $stmt->bind_param("s", $student_email); $stmt->execute(); $application = $stmt->get_result()->fetch_assoc(); /* ================= PASSWORD CHECK ================= */ $password_set = false; $pwdStmt = $conn->prepare("SELECT password_hash FROM students WHERE email = ?"); $pwdStmt->bind_param("s", $student_email); $pwdStmt->execute(); $pwdData = $pwdStmt->get_result()->fetch_assoc(); if (!empty($pwdData['password_hash'])) { $password_set = true; } $distance_km = $application['distance_km'] ?? ''; ?> 
+<?php require_once 'database/db_connect.php';
+ /* ================= APPLICATION WINDOW ================= */ 
+ date_default_timezone_set('Asia/Kolkata');
+
+ $result = $conn->query("SELECT start_date, end_date FROM application_settings WHERE id = 1");
+  $settings = $result->fetch_assoc();
+  $now = date('Y-m-d H:i:s'); 
+  $appWindowOpen = (
+    $now >= $settings['start_date'] &&
+    $now <= $settings['end_date']
+);
+
+$editWindowOpen = (
+    !empty($settings['edit_start']) &&
+    !empty($settings['edit_end']) &&
+    $now >= $settings['edit_start'] &&
+    $now <= $settings['edit_end']
+);
+
+
+  /* ================= STUDENT IDENTIFIER ================= */ /* TODO: replace with session later */ 
+  $student_email = 'student@example.com'; 
+  /* ================= LOAD APPLICATION ================= */ 
+  $stmt = $conn->prepare("SELECT * FROM hostel_applications WHERE student_email = ?");
+  $stmt->bind_param("s", $student_email); 
+  $stmt->execute(); 
+  $application = $stmt->get_result()->fetch_assoc(); 
+  $submitted= !empty($application['submitted_at']);
+  $editable = (
+    ($appWindowOpen && !$submitted) ||
+    ($editWindowOpen && $submitted)
+);
+  /* ================= PASSWORD CHECK ================= */ 
+  $password_set = false; 
+  $pwdStmt = $conn->prepare("SELECT password_hash FROM students WHERE email = ?"); 
+  $pwdStmt->bind_param("s", $student_email); 
+  $pwdStmt->execute(); 
+  $pwdData = $pwdStmt->get_result()->fetch_assoc(); 
+  if (!empty($pwdData['password_hash'])) { $password_set = true; } $distance_km = $application['distance_km'] ?? ''; ?> 
 <!DOCTYPE html> 
 <html lang="en"> 
 <head> 
@@ -16,11 +54,22 @@
 <strong><?= $settings['end_date'] ?></strong> 
 </p> 
 
-<?php if ($editable): ?> 
-<p class="status-open">✅ Application window is OPEN</p> 
-<?php else: ?> 
-<p class="status-closed">🔒 Application window is CLOSED</p> 
-<?php endif; ?> 
+<?php if ($appWindowOpen): ?>
+  <p class="status-open">✅ Application window is OPEN</p>
+<?php else: ?>
+  <p class="status-closed">🔒 Application window is CLOSED</p>
+<?php endif; ?>
+
+<?php if ($editWindowOpen): ?>
+  <p class="status-info">✏️ Edit window is OPEN for submitted applications</p>
+<?php endif; ?>
+
+<?php if ($submitted && !$editable): ?>
+  <p class="status-info">
+    📌 Your application has been submitted and cannot be edited at this time.
+  </p>
+<?php endif; ?>
+
 
 <div class="steps"> 
   <div class="step active" onclick="showStep(1)">Personal Info</div> 
@@ -29,7 +78,8 @@
   <div class="step" onclick="showStep(4)">Account Security</div> 
 </div> 
 
-<form method="POST" action="saveApplication.php" enctype="multipart/form-data" onsubmit="return validatePassword();"> 
+<form method="POST" action="saveApplication.php" enctype="multipart/form-data" onsubmit="return validatePassword();"
+onkeydown="return event.key !=='Enter';"> 
 
 <!-- ================= STEP 1 ================= --> 
 <div class="section active" id="step1"> 
@@ -73,7 +123,7 @@
       </div> 
 
       <div> 
-        <label>Year / Semester</label> 
+        <label>Semester</label> 
         <input type="text" name="year_semester" value="<?= htmlspecialchars($application['year_semester'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
       </div> 
 
@@ -84,13 +134,13 @@
 
       <div> 
         <label>Pin Code</label> 
-        <input type="text" name="pincode" maxlength="6" onblur="fetchDistance()"> 
+       <input type="text" name="pincode" maxlength="6" oninput="fetchDistance()" >
       </div> 
 
       <div> 
         <label>Distance (km)</label> 
-        <input type="text" value="<?= htmlspecialchars($distance_km) ?>" readonly> 
-        <input type="hidden" name="distance_km" value="<?= htmlspecialchars($distance_km) ?>"> 
+        <input type="text" id="distance_display" value="<?= htmlspecialchars($distance_km) ?>" readonly>
+        <input type="hidden" name="distance_km" id="distance_km" value="<?= htmlspecialchars($distance_km) ?>">
       </div> 
 
     </div> 
@@ -113,8 +163,7 @@
       <select name="pwd_status" id="pwd_status" onchange="toggleDisability()" <?= !$editable ? 'disabled' : '' ?>> 
         <option value="">Select</option> 
         <option value="No" <?= ($application['pwd_status'] ?? '')==='No'?'selected':'' ?>>No</option> 
-        <option value="Yes" <?= ($application['pwd_status'] ?? '')==='Yes'?'selected':'' ?>>Yes</option> 
-        <option value="NA" <?= ($application['pwd_status'] ?? '')==='NA'?'selected':'' ?>>Not Applicable</option> 
+        <option value="Yes" <?= ($application['pwd_status'] ?? '')==='Yes'?'selected':'' ?>>Yes</option>  
       </select> 
 
       <div id="disabilityBox"> 
@@ -139,6 +188,7 @@
 <div class="section" id="step3"> 
   <div class="card"> 
     <h3>Documents</h3> 
+    <p id=docinfo>Note: Documents may be submitted at the time of application or during admission. Any discrepancy between the submitted documents and the information provided in the application may result in appropriate action as per institutional rules.</p>
 
     <label>Income Certificate (PDF)</label> 
     <input type="file" name="income_certificate" <?= !$editable?'disabled':'' ?>><br><br> 
@@ -180,12 +230,31 @@
 
 <div class="actions"> 
   <button type="button" onclick="prevStep()">Back</button> 
-  <?php if ($editable): ?> 
-    <button type="submit">Save Application</button> 
-  <?php else: ?> 
-    <button disabled>Editing Disabled</button> 
-  <?php endif; ?> 
-</div> 
+
+  <?php if ($editable): ?>
+
+    <button type="submit" name="action" value="save">
+      Save Application
+    </button>
+
+    <button type="submit"
+            name="action"
+            value="submit"
+            onclick="return confirm('Once submitted, you cannot edit the application. Are you sure?');">
+      Final Submit
+    </button>
+
+  <?php elseif ($submitted): ?>
+
+    <button disabled>✅ Application Submitted</button>
+
+  <?php else: ?>
+
+    <button disabled>🔒 Editing Disabled</button>
+
+  <?php endif; ?>
+</div>
+ 
 
 </form> 
 </div> 
@@ -250,21 +319,31 @@ function validatePassword() {
 } 
 </script> 
 
-<script> 
-function fetchDistance() { 
-  const pin = document.querySelector('input[name="pincode"]').value; 
-  if (pin.length !== 6) return; 
+<script>
+function fetchDistance() {
+  const pin = document.querySelector('input[name="pincode"]').value;
 
-  fetch("get_distance.php?pincode=" + pin) 
-    .then(res => res.text()) 
-    .then(distance => { 
-      if (distance) { 
-        document.querySelector('input[readonly]').value = distance; 
-        document.querySelector('input[name="distance_km"]').value = distance; 
-      } 
-    }); 
-} 
-</script> 
+  // Only run when pincode is complete
+  if (pin.length !== 6) {
+    document.getElementById('distance_display').value = '';
+    document.getElementById('distance_km').value = '';
+    return;
+  }
+
+  fetch("get_distance.php?pincode=" + pin)
+    .then(res => res.text())
+    .then(distance => {
+      if (distance) {
+        document.getElementById('distance_display').value = distance + " km";
+        document.getElementById('distance_km').value = distance;
+      }
+    })
+    .catch(() => {
+      document.getElementById('distance_display').value = 'Error';
+    });
+}
+</script>
+
 
 </body> 
 </html>

@@ -1,0 +1,99 @@
+<?php
+session_start();
+require_once '../database/db_connect.php';
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../index.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+
+/* Fetch admin details */
+$stmt = $conn->prepare("SELECT username, profile_image FROM users WHERE user_id = ?");
+$stmt->bind_param("s", $user_id);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+
+/* Profile image logic */
+$profileImage = (!empty($user['profile_image']) && file_exists("../uploads/profile_pics/" . $user['profile_image']))
+    ? "../uploads/profile_pics/" . $user['profile_image']
+    : "../assets/images/default_profile.png";
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | ARUVI</title>
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+</head>
+<body>
+
+<div class="dashboard-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <img src="../assets/images/logo.jpeg" alt="ARUVI Logo">
+            <span>ARUVI</span>
+        </div>
+
+        <ul class="menu">
+            <li class="active">Dashboard</li>
+            <li><a href="rank_list.php">Rank List</a></li>
+            <li>Analytics</li>
+            <li>Application Approval</li>
+            <li>Staff Feedback</li>
+            <li>Notifications</li>
+            <li>Fee Defaulters</li>
+            <li>Complaints</li>
+            <li><a href="../auth/logout.php">Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <span>Administrator Dashboard</span>
+            <span><?= date("l, d M Y | h:i A") ?></span>
+        </div>
+
+        <!-- Profile Card -->
+        <section class="profile-card">
+            <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profile Image">
+
+            <div class="profile-info">
+                <h2><?= htmlspecialchars($user['username']) ?></h2>
+                <p><strong>Role:</strong> Administrator</p>
+                <p><strong>User ID:</strong> <?= htmlspecialchars($user_id) ?></p>
+
+                <div class="profile-actions">
+                    <a href="edit_profile.php" class="btn">Edit Profile</a>
+                    <a href="change_password.php" class="btn secondary">Change Password</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="stats">
+            <div class="stat-box">
+                <h3>Total Applications</h3>
+                <p>—</p>
+            </div>
+            <div class="stat-box">
+                <h3>Rank List Status</h3>
+                <p>Not Published</p>
+            </div>
+            <div class="stat-box">
+                <h3>Allotted Students</h3>
+                <p>—</p>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

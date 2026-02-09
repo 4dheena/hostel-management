@@ -1,70 +1,88 @@
 <?php
-/* ================= HOSTEL LOCATION ================= */
-define('HOSTEL_LAT', 10.059747068327198); // <-- CHANGE THIS
-define('HOSTEL_LON', 76.33109129038162); // <-- CHANGE THIS
+// ===================================================
+// get_distance.php
+// Input : pincode
+// Output: road distance in KM
+// ===================================================
 
-$pincode = $_GET['pincode'] ?? '';
-
-if (strlen($pincode) !== 6) {
-    echo '';
+// 1. Validate input
+if (!isset($_GET['pincode']) || !preg_match('/^[0-9]{6}$/', $_GET['pincode'])) {
+    echo "";
     exit;
 }
 
-/* ================= GET LAT/LON FROM PINCODE ================= */
-function getLatLonFromPincode($pincode) {
-    $url = "https://nominatim.openstreetmap.org/search?postalcode=$pincode&country=India&format=json&limit=1";
+$pincode = $_GET['pincode'];
 
-    $opts = [
-        "http" => [
-            "header" => "User-Agent: CollegeProject/1.0\r\n"
-        ]
-    ];
+// ===================================================
+// 2. Get centroid lat/lon of PIN code (Nominatim)
+// ===================================================
+$nominatimUrl =
+    "https://nominatim.openstreetmap.org/search" .
+    "?postalcode=" . urlencode($pincode) .
+    "&country=India" .
+    "&format=json" .
+    "&limit=1";
 
-    $context = stream_context_create($opts);
-    $response = @file_get_contents($url, false, $context);
+// Nominatim requires a User-Agent
+$opts = [
+    "http" => [
+        "header" => "User-Agent: HostelDistanceCalculator/1.0\r\n"
+    ]
+];
 
-    if (!$response) return null;
+$context = stream_context_create($opts);
+$response = file_get_contents($nominatimUrl, false, $context);
 
-    $data = json_decode($response, true);
-
-    if (!$data || empty($data[0]['lat']) || empty($data[0]['lon'])) {
-        return null;
-    }
-
-    return [
-        'lat' => (float)$data[0]['lat'],
-        'lon' => (float)$data[0]['lon']
-    ];
-}
-
-/* ================= HAVERSINE FORMULA ================= */
-function calculateDistance($lat1, $lon1, $lat2, $lon2) {
-    $earthRadius = 6371; // km
-
-    $dLat = deg2rad($lat2 - $lat1);
-    $dLon = deg2rad($lon2 - $lon1);
-
-    $a = sin($dLat/2) * sin($dLat/2) +
-         cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-         sin($dLon/2) * sin($dLon/2);
-
-    $c = 2 * atan2(sqrt($a), sqrt(1-$a));
-    return round($earthRadius * $c, 2);
-}
-
-/* ================= MAIN ================= */
-$coords = getLatLonFromPincode($pincode);
-
-if (!$coords) {
-    echo '';
+if ($response === false) {
+    echo "";
     exit;
 }
 
-$distance = calculateDistance(
-    HOSTEL_LAT,
-    HOSTEL_LON,
-    $coords['lat'],
-    $coords['lon']
-);
+$data = json_decode($response, true);
 
-echo $distance;
+// If PIN code not found
+if (empty($data)) {
+    echo "";
+    exit;
+}
+
+// This is the *center of the PIN code area*
+$homeLat = (float)$data[0]['lat'];
+$homeLon = (float)$data[0]['lon'];
+
+// ===================================================
+// 3. College / Hostel fixed location
+// 🔴 CHANGE THESE ONCE AND FOR ALL
+// ===================================================
+$collegeLat = 10.049102;   // example
+$collegeLon = 76.331735;  // example
+
+// ===================================================
+// 4. OSRM road distance calculation
+// IMPORTANT: lon,lat order
+// ===================================================
+$osrmUrl =
+    "https://router.project-osrm.org/route/v1/driving/" .
+    "{$homeLon},{$homeLat};{$collegeLon},{$collegeLat}" .
+    "?overview=false";
+
+$osrmResponse = file_get_contents($osrmUrl);
+
+if ($osrmResponse === false) {
+    echo "";
+    exit;
+}
+
+$osrmData = json_decode($osrmResponse, true);
+
+if (!isset($osrmData['routes'][0]['distance'])) {
+    echo "";
+    exit;
+}
+
+// ===================================================
+// 5. Convert meters → KM and return
+// ===================================================
+$distanceKm = $osrmData['routes'][0]['distance'] / 1000;
+
+echo round($distanceKm, 2);

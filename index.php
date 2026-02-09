@@ -25,8 +25,8 @@
 
     <ul class="nav-links">
       <li><a href="about.php">About</a></li>
-      <li><a href="#facilities">Facilities</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="facilities.php">Facilities</a></li>
+      <li><a href="contact.php">Contact</a></li>
       <li><a href="#announcements">Announcements</a></li>
       <li><a href="#rules">Rules</a></li>
       <li><a href="#forms">Forms</a></li>
@@ -66,10 +66,27 @@
 
       <!-- Right -->
          <div class="login-card">
-        <h3>User Authentication</h3>
-        <input type="text" placeholder="Email">
-        <input type="password" placeholder="Password">
-        <button class="btn primary full">Sign In</button>
+          <form method="POST" action="auth/login.php">
+    <h3>User Authentication</h3>
+
+    <input
+        type="text"
+        name="user_id"
+        placeholder="User ID"
+        required
+    >
+
+    <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        required
+    >
+
+    <button type="submit" class="btn primary full">
+        Sign In
+    </button>
+</form>
       </div>
     </div>
   </section>

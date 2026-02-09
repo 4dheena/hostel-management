@@ -3,6 +3,7 @@ require_once 'database/db_connect.php';
 
 /* TODO: replace with session later */
 $student_email = 'student@example.com';
+$action = $_POST['action'] ?? 'save'; // 'save' or 'submit'
 $upload_dir = 'uploads/documents/';
 
 function uploadFile($field, $existing = null){
@@ -31,7 +32,10 @@ $stmt = $conn->prepare("SELECT * FROM hostel_applications WHERE student_email=?"
 $stmt->bind_param("s",$student_email);
 $stmt->execute();
 $app = $stmt->get_result()->fetch_assoc();
-
+if (!empty($app['submitted_at'])) {
+    header("Location: apply.php");
+    exit;
+}
 /* HANDLE DISABILITY PERCENTAGE */
 $disability_percentage = null;
 if (
@@ -51,10 +55,11 @@ $id_proof           = uploadFile('id_proof',$app['id_proof']??null);
 /* SAVE DATA */
 $stmt = $conn->prepare("
 UPDATE hostel_applications SET
-full_name=?, register_number=?, personal_email=?, phone=?, gender=?,
+full_name=?, student_id=?, phone=?, gender=?,
 department=?, year_semester=?, dob=?, pincode=?, distance_km=?,
 annual_income=?, pwd_status=?, disability_percentage=?,
-income_certificate=?, pwd_certificate=?, id_proof=?
+income_certificate=?, pwd_certificate=?, id_proof=?,
+submitted_at = IF(? = 'submit', NOW(), submitted_at)
 WHERE student_email=?
 ");
 
@@ -76,6 +81,7 @@ $disability_percentage,
 $income_certificate,
 $pwd_certificate,
 $id_proof,
+$action,
 $student_email
 );
 
