@@ -28,7 +28,7 @@
       <li><a href="facilities.php">Facilities</a></li>
       <li><a href="contact.php">Contact</a></li>
       <li><a href="#announcements">Announcements</a></li>
-      <li><a href="#rules">Rules</a></li>
+      <li><a href="rules.html">Rules</a></li>
       <li><a href="#forms">Forms</a></li>
     </ul>
 

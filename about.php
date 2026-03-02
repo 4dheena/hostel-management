@@ -13,7 +13,7 @@
         <nav>
             <a href="index.php">Home</a>
             <a href="about.php" class="active">About</a>
-            <a href="facilities.php">Facilities</a>
+            <a href="facilities.html">Facilities</a>
             <a href="#contact">Contact</a>
             <a href="#announcements">Announcements</a>
             <a href="#rules">Rules</a>
