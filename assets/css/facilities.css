@@ -1,4 +1,3 @@
-
 * {
     margin: 0;
     padding: 0;
@@ -40,7 +39,7 @@ body {
 .hero {
     
     height: 30vh;
-    background: url("assets/images/hostel.jpeg") center/cover no-repeat;
+    background: url("../images/hostel.jpeg") center/cover no-repeat;
     position: relative;
 }
 
@@ -101,85 +100,61 @@ footer {
     background-color: #0a3d62;
     color: white;
 }
-.rooms {
-  display: flex;
-  justify-content: space-around;
-  text-align: center;
+body {
+    margin: 0;
+    padding: 40px;
+    background: white;
+    font-family: Arial, sans-serif;
 }
 
-.room img {
-  width: 350px;
-  height: auto;
+.card {
+    width: 60%;
+    margin: 30px auto;
+    border-radius: 20px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+/* animation base */
+.animate {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    transition: all 0.6s ease;
 }
 
-.room h3 {
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    
-    font-size: 22px;
-    color: #2c7a7b;
-  margin-top: 8px;
+/* when visible */
+.animate.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
-}
-
-.item {
+.row {
     display: flex;
     align-items: center;
-    gap: 15px;
+    margin-bottom: 20px;
 }
 
-.item span {
-    font-size: 26px;
-    color: #3b6cff;
-    background: #eef2ff;
-    padding: 14px;
-    border-radius: 50%;
+.row.reverse {
+    flex-direction: row-reverse;
 }
 
-.item p {
-    margin: 0;
-    font-size: 15px;
+.text {
+    width: 50%;
+    padding: 20px;
 }
 
-/* Centered & compact facilities layout */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(4, auto);
-    justify-content: center;
-    gap: 18px 35px;
+.image {
+    width: 50%;
+    text-align: center;
 }
 
-.item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.image img {
+    width: 90%;
+    border-radius: 15px;
 }
-
-.item span {
-    font-size: 24px;
-    padding: 10px;
-}
-
-.item p {
-    font-size: 14px;
-    margin: 0;
-}
-.rooms {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin: 40px 0;
-}
-
-.room {
-  text-align: center;
-}
-
-.room img {
-  width: 390px;
-  height: auto;
+.card h3 {
+    color: #0B1D51;        /* dark navy blue */
+    font-size: 32px;       /* much larger, adjust if needed */
+    font-family: 'Montserrat', sans-serif; /* modern, clean font */
+    font-weight: 700;      /* bold */
+    margin-bottom: 12px;   /* space below heading */
 }

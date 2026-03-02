@@ -1,8 +1,8 @@
 <?php
 // db_connect.php
-$servername = "localhost";
+$servername = "127.0.0.1";
 $dbusername = "root";
-$dbpassword = "";
+$dbpassword = "4gha@Mysql2!";
 $database = "hostel_management";
 
 $conn = new mysqli($servername, $dbusername, $dbpassword, $database);

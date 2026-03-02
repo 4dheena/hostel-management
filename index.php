@@ -53,7 +53,7 @@
         </p>
 
         <div class="hero-buttons">
-          <a href="apply.php"><button class="btn primary">Apply now</button></a>
+          <button class="btn primary" onclick= "window.location.href='apply.php'">Apply now</button>
           <button class="btn outline">View Vacancy</button>
         </div>
 

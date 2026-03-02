@@ -1,3 +1,4 @@
+
 <?php require_once 'database/db_connect.php';
  /* ================= APPLICATION WINDOW ================= */ 
  date_default_timezone_set('Asia/Kolkata');
