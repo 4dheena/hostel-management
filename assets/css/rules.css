@@ -1,15 +1,3 @@
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
-body {
-    background-color: #f5f7fa;
-}
-
 /* NAVBAR */
 .navbar {
     height: 5vh;
@@ -101,61 +89,104 @@ footer {
     background-color: #0a3d62;
     color: white;
 }
-body {
+
+
+/* Base reset */
+* {
     margin: 0;
-    padding: 40px;
-    background: white;
-    font-family: Arial, sans-serif;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
 }
 
-.card {
-    width: 60%;
-    margin: 30px auto;
-    border-radius: 20px;
-    padding: 15px;
-    background: white;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-/* animation base */
-.animate {
-    opacity: 0;
-    transform: translateY(40px) scale(0.95);
-    transition: all 0.6s ease;
+/* Colors */
+:root {
+    --navy: #0b3c5d;
+    --white: #ffffff;
+    --light-gray: #f4f6f8;
+    --text-dark: #333333;
 }
 
-/* when visible */
-.animate.show {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-.row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
+/* Page background */
+body {
+    background-color: var(--light-gray);
+    color: var(--text-dark);
+    line-height: 1.6;
 }
 
-.row.reverse {
-    flex-direction: row-reverse;
-}
-
-.text {
-    width: 50%;
-    padding: 20px;
-}
-
-.image {
-    width: 50%;
+/* Header */
+.header {
+    background-color: var(--navy);
+    color: var(--white);
     text-align: center;
+    padding: 30px 20px;
 }
 
-.image img {
-    width: 90%;
-    border-radius: 15px;
+.header h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
 }
-.card h3 {
-    color: #0B1D51;        /* dark navy blue */
-    font-size: 32px;       /* much larger, adjust if needed */
-    font-family: 'Montserrat', sans-serif; /* modern, clean font */
-    font-weight: 700;      /* bold */
-    margin-bottom: 12px;   /* space below heading */
+
+.header p {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* Main container */
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    background-color: var(--white);
+    padding: 30px 40px;
+    border-radius: 6px;
+}
+
+/* Intro text */
+.intro {
+    margin-bottom: 25px;
+    font-size: 15px;
+}
+
+/* Sections */
+section {
+    margin-bottom: 25px;
+}
+
+section h2 {
+    color: var(--navy);
+    font-size: 18px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--navy);
+    padding-bottom: 5px;
+}
+
+/* Lists */
+ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+ul li {
+    margin-bottom: 8px;
+    font-size: 14.5px;
+}
+
+/* Agreement text */
+.agreement {
+    margin-top: 30px;
+    font-weight: 500;
+}
+
+/* Management */
+.management {
+    margin-top: 20px;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 15px;
+    background-color: var(--navy);
+    color: var(--white);
+    font-size: 13px;
 }
