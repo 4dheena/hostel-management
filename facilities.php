@@ -18,7 +18,7 @@
             <a href="about.php">About</a>
             <a href="facilities.php" class="active">Facilities</a>
             <a href="contact.php">Contact</a>
-            <a href="rules.html">Rules</a>
+            <a href="rules.php">Rules</a>
         </nav>
     </header>
 
