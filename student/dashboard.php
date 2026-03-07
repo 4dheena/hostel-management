@@ -21,10 +21,10 @@ $_SESSION['role'] = 'student';
     <title>Student Dashboard</title>
 
     <!-- Global styles (if you have them) -->
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
 
     <!-- Dashboard specific styles -->
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
 </head>
 <body>
 

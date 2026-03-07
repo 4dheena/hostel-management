@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Facilities | ARUVI Hostel</title>
+    
     <link rel="stylesheet" href="assets/css/facilities.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -16,9 +17,11 @@
         <nav>
             <a href="index.php">Home</a>
             <a href="about.php">About</a>
-            <a href="facilities.html" class="active">Facilities</a>
+            <a href="facilities.php" class="active">Facilities</a>
             <a href="contact.php">Contact</a>
-            <a href="rules.html">Rules</a>
+            <a href="rules.php">Rules</a>
+            <a href="announcement.php">Announcements</a>
+            <a href="forms.php">Forms</a>
         </nav>
     </header>
 
@@ -38,7 +41,7 @@
 <br>
 <br>
 <br>
-<body>
+
 
 <!-- Card 1 -->
 <div class="card animate">

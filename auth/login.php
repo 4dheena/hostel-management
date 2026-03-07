@@ -4,6 +4,21 @@ require_once '../database/db_connect.php';
 
 $error = "";
 
+/* If already logged in, redirect automatically */
+if (isset($_SESSION['role'])) {
+    switch ($_SESSION['role']) {
+        case 'admin':
+            header("Location: ../admin/dashboard.php");
+            exit;
+        case 'warden':
+            header("Location: ../warden/dashboard.php");
+            exit;
+        case 'student':
+            header("Location: ../student/dashboard.php");
+            exit;
+    }
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (empty($_POST['user_id']) || empty($_POST['password'])) {
@@ -26,24 +41,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             if (password_verify($password, $user['password'])) {
 
-                /* ✅ LOGIN SUCCESS */
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['role']    = $user['role'];
 
-                /* ROLE-BASED REDIRECT */
                 switch ($user['role']) {
                     case 'admin':
-                        header("Location: admin/dashboard.php");
+                        header("Location: ../admin/dashboard.php");
                         exit;
-
                     case 'warden':
-                        header("Location: warden/dashboard.php");
+                        header("Location: ../warden/dashboard.php");
                         exit;
-
                     case 'student':
-                        header("Location: student/dashboard.php");
+                        header("Location: ../student/dashboard.php");
                         exit;
-
                     default:
                         $error = "Unauthorized role.";
                 }
@@ -59,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Login | Hostel Management</title>
@@ -109,14 +119,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <div class="login-box">
     <h2>Login</h2>
 
-    <!-- 🔔 ERROR ALERT -->
     <?php if (!empty($error)): ?>
         <div class="alert"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <form method="POST">
-        <input type="text" name="user_id" placeholder="User ID" required>
-        <input type="password" name="password" placeholder="Password" required>
+    <form method="POST" autocomplete="off">
+        <input type="text" name="user_id" placeholder="User ID" required autocomplete="off">
+        <input type="password" name="password" placeholder="Password" required autocomplete="new-password">
         <button type="submit">Login</button>
     </form>
 </div>

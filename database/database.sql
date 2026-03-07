@@ -133,4 +133,13 @@ INSERT INTO contacts (role, name, phone) VALUES
 ('Matron', 'Mrs. Anitha Thomas', '91234 56789'),
 ('Hostel Secretary', 'Mr./Ms. Secretary', '90000 12345');
 
+ALTER TABLE hostel_applications
+ADD status VARCHAR(20) DEFAULT 'pending';
 
+CREATE TABLE announcements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    file_path VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

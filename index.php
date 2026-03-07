@@ -1,3 +1,56 @@
+<?php
+session_start();
+require_once 'database/db_connect.php';
+
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    if (empty($_POST['username']) || empty($_POST['password'])) {
+        $error = "Please enter both User ID and Password.";
+    } else {
+
+        $user_id  = trim($_POST['username']);
+        $password = $_POST['password'];
+
+        $stmt = $conn->prepare(
+            "SELECT user_id,username, password, role FROM users WHERE username = ?"
+        );
+        $stmt->bind_param("s", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 1) {
+
+            $user = $result->fetch_assoc();
+
+            if (password_verify($password, $user['password'])) {
+
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['role']    = $user['role'];
+
+                switch ($user['role']) {
+                    case 'admin':
+                        header("Location: admin/dashboard.php");
+                        exit;
+                    case 'warden':
+                        header("Location: warden/dashboard.php");
+                        exit;
+                    case 'student':
+                        header("Location: student/dashboard.php");
+                        exit;
+                }
+
+            } else {
+                $error = "Invalid User ID or Password.";
+            }
+
+        } else {
+            $error = "Invalid User ID or Password.";
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,9 +80,9 @@
       <li><a href="about.php">About</a></li>
       <li><a href="facilities.php">Facilities</a></li>
       <li><a href="contact.php">Contact</a></li>
-      <li><a href="#announcements">Announcements</a></li>
-      <li><a href="rules.html">Rules</a></li>
-      <li><a href="#forms">Forms</a></li>
+      <li><a href="announcement.php">Announcements</a></li>
+      <li><a href="rules.php">Rules</a></li>
+      <li><a href="forms.php">Forms</a></li>
     </ul>
 
   </nav>
@@ -66,13 +119,17 @@
 
       <!-- Right -->
          <div class="login-card">
-          <form method="POST" action="auth/login.php">
+
+    <?php if (!empty($error)): ?>
+        <div class="alert"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+          <form method="POST" autocomplete="off">
     <h3>User Authentication</h3>
 
     <input
         type="text"
-        name="user_id"
-        placeholder="User ID"
+        name="username"
+        placeholder="Username"
         required
     >
 
