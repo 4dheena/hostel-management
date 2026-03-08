@@ -37,29 +37,20 @@
 
         <h2>About ARUVI Hostel</h2>
         <p>
-            ARUVI Hostel was established in the year <strong>2018</strong> with the vision
-            of providing comfortable, safe and affordable accommodation for students.
-            Located in the heart of <strong>Kakkanad, Kochi</strong>, our hostel offers a
-            peaceful environment that supports both academic focus and social interaction.
+            ARUVI Hostel was established with the vision of providing comfortable, safe, and well-managed accommodation for students. Located in a peaceful and accessible area, the hostel provides an environment that supports both academic focus and community living.
         </p>
 
         <p>
-            The hostel consists of a total of <strong>75 well-maintained rooms</strong>.
-            Each room is designed to accommodate <strong>three inmates</strong>, with the
-            provision to add <strong>one guest</strong> if required. Hence, the maximum
-            holding capacity of each room is <strong>four members</strong>.
+           The hostel infrastructure is organized into multiple housing complexes designed to accommodate students efficiently while maintaining comfort and privacy. Each complex is structured to ensure proper space utilization, safety, and ease of management. 
         </p>
 
         <h2>Hostel Management</h2>
         <p>
-            ARUVI Hostel is managed by experienced and caring staff who ensure the
-            well-being, safety and discipline of all residents.
-        </p>
-
-        <ul>
-            <li><strong>Warden:</strong> Mr. Rajesh Kumar – 📞 98765 43210</li>
-            <li><strong>Matron:</strong> Mrs. Anitha Thomas – 📞 91234 56789</li>
-        </ul>
+            ARUVI Hostel consists of five housing complexes, each designed to accommodate students in a structured and organized manner.
+Each complex contains multiple rooms arranged to support shared student living, where rooms are designed for multi-occupancy based on the configured room sharing capacity. This ensures efficient utilization of space while maintaining a comfortable living environment.
+The allocation of rooms is managed through a structured hostel management system that ensures fair distribution and efficient accommodation for all approved residents.
+</p>
+        
 
         <h2>Facilities & Services</h2>
         <p>

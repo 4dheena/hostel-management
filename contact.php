@@ -1,67 +1,128 @@
 <?php
-require_once 'config.php';
+require_once "database/db_connect.php";
 
-$contacts = [];
-$db_error = null;
+/* FETCH WARDENS GROUPED BY HOSTEL */
 
-try {
-  $conn = get_db_conn();
-  $sql = "SELECT role, name, phone FROM contacts ORDER BY id";
-  $result = $conn->query($sql);
-  while ($row = $result->fetch_assoc()) {
-    $contacts[] = $row;
-  }
-  $conn->close();
-} catch (Exception $e) {
-  $db_error = $e->getMessage();
+$wardenQuery = $conn->query("
+SELECT h.hostel_name, w.full_name, w.phone, w.email
+FROM wardens w
+JOIN hostels h ON w.hostel_id = h.hostel_id
+ORDER BY h.hostel_name
+");
+
+$wardens = [];
+
+while($row = $wardenQuery->fetch_assoc()){
+    $wardens[$row['hostel_name']][] = $row;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARUVI Hostel - Contact</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f8fafc; margin: 0; }
-    nav { background: #fff; display: flex; justify-content: space-between; padding: 20px 50px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
-    .logo { font-weight: bold; color: #0b3b5a; font-size: 24px; }
-    a { text-decoration: none; color: #333; margin-left: 20px; }
-    a:hover { color: #0b3b5a; }
-    .container { max-width: 900px; margin: 60px auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    h2 { color: #0b3b5a; }
-    ul { list-style: none; padding: 0; }
-    li { margin-bottom: 12px; }
-    .phone { color: #ef476f; margin-left: 8px; }
-  </style>
+
+<meta charset="UTF-8">
+<title>Contact | ARUVI</title>
+<link rel="stylesheet" href="assets/css/contact.css">
+
 </head>
+
+
 <body>
-  <nav>
-    <div class="logo">ARUVI</div>
-    <div>
-      <a href="index.php">Home</a>
-      <a href="contact.php" style="color:#0b3b5a;font-weight:bold;">Contact</a>
-    </div>
-  </nav>
 
-  <div class="container">
-    <h2>Hostel Management</h2>
-    <p>ARUVI Hostel is managed by experienced and caring staff who ensure the well-being, safety, and discipline of all residents.</p>
+<!-- NAVBAR (same structure as your site) -->
 
-    <?php if ($db_error): ?>
-      <p style="color:red;">⚠️ Database not ready yet. Once your friend adds the contacts table, this page will show the data automatically.</p>
-    <?php elseif (empty($contacts)): ?>
-      <p>No contact details available yet.</p>
-    <?php else: ?>
-      <ul>
-        <?php foreach ($contacts as $c): ?>
-          <li><strong><?= htmlspecialchars($c['role']) ?>:</strong>
-              <?= htmlspecialchars($c['name']) ?>
-              <span class="phone">📞 <?= htmlspecialchars($c['phone']) ?></span>
-          </li>
-        <?php endforeach; ?>
-      </ul>
-    <?php endif; ?>
-  </div>
+    <header class="navbar">
+        <div class="logo">ARUVI</div>
+        <nav>
+            <a href="index.php">Home</a>
+            <a href="about.php">About</a>
+            <a href="facilities.php">Facilities</a>
+            <a href="contact.php" class="active">Contact</a>
+            <a href="announcement.php">Announcements</a>
+            <a href="rules.php">Rules</a>
+            <a href="forms.php">Forms</a>
+        </nav>
+    </header>
+
+<!-- HERO -->
+
+<section class="hero-contact">
+<div class="hero-overlay">
+
+<h1>Contact Aruvi Hostels</h1>
+<p>Get in touch with hostel administration and wardens</p>
+
+</div>
+</section>
+
+
+
+<div class="contact-main">
+
+<!-- ADMIN / EMERGENCY / OFFICE -->
+
+<div class="info-grid">
+
+<div class="info-card">
+<h3>Hostel Administration</h3>
+<p>Aruvi Hostels Administration Office</p>
+<p>Phone: +91 9876543210</p>
+<p>Email: aruvi.hostels@gmail.com</p>
+</div>
+
+<div class="info-card">
+<h3>Emergency Contact</h3>
+<p>Emergency Helpline</p>
+<p>+91 9876543210</p>
+<p>Available 24/7</p>
+</div>
+
+<div class="info-card">
+<h3>Office Hours</h3>
+<p>Mon – Fri : 9:00 AM – 5:00 PM</p>
+<p>Sat : 9:00 AM – 1:00 PM</p>
+<p>Sunday : Closed</p>
+</div>
+
+</div>
+
+
+
+<!-- WARDENS -->
+
+<div class="warden-section">
+
+<h2>Hostel Wardens</h2>
+
+<div class="warden-grid">
+
+<?php foreach($wardens as $hostel => $wardenList){ ?>
+
+<div class="warden-card">
+
+<h3><?= htmlspecialchars($hostel) ?> Hostel</h3>
+
+<?php foreach($wardenList as $w){ ?>
+
+<p><strong><?= htmlspecialchars($w['full_name']) ?></strong></p>
+<p>Phone: <?= htmlspecialchars($w['phone']) ?></p>
+<p>Email: <?= htmlspecialchars($w['email']) ?></p>
+
+<hr>
+
+<?php } ?>
+
+</div>
+
+<?php } ?>
+
+</div>
+
+</div>
+
+</div>
+
 </body>
 </html>
