@@ -7,7 +7,30 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
-/* FETCH APPLICATIONS */
+/* ================= FETCH CAPACITY INFO ================= */
+
+$capacityQuery = $conn->query("
+SELECT SUM(capacity) AS total_capacity 
+FROM hostels
+");
+
+$total_capacity = $capacityQuery->fetch_assoc()['total_capacity'];
+
+/* COUNT APPROVED STUDENTS */
+
+$approvedQuery = $conn->query("
+SELECT COUNT(*) AS approved_students
+FROM hostel_applications
+WHERE status='approved'
+");
+
+$approved_students = $approvedQuery->fetch_assoc()['approved_students'];
+
+$remaining_seats = $total_capacity - $approved_students;
+
+
+/* ================= FETCH APPLICATIONS ================= */
+
 $query = "
 SELECT *
 FROM hostel_applications
@@ -36,47 +59,72 @@ h2{
     margin-bottom:20px;
 }
 
+/* Capacity Info Box */
+
+.capacity-box{
+background:#eef6ff;
+border:1px solid #cfe2ff;
+padding:15px;
+border-radius:8px;
+margin-bottom:20px;
+font-weight:bold;
+}
+
+.approve-all-btn{
+padding:10px 18px;
+background:#28a745;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin-bottom:15px;
+}
+
+.approve-all-btn:hover{
+background:#218838;
+}
+
 table{
-    width:100%;
-    border-collapse:collapse;
+width:100%;
+border-collapse:collapse;
 }
 
 th, td{
-    border:1px solid #ccc;
-    padding:8px;
-    text-align:center;
+border:1px solid #ccc;
+padding:8px;
+text-align:center;
 }
 
 th{
-    background:#f4f4f4;
+background:#f4f4f4;
 }
 
 .status-dropdown{
-    background-color:#28a745;
-    color:white;
-    padding:5px 8px;
-    border:none;
-    border-radius:4px;
-    font-weight:bold;
+background-color:#28a745;
+color:white;
+padding:5px 8px;
+border:none;
+border-radius:6px;
+font-weight:bold;
 }
 
 .status-dropdown option{
-    color:black;
+color:black;
 }
 
 .update-btn{
-    margin-top:20px;
-    background:#007bff;
-    color:white;
-    border:none;
-    padding:10px 16px;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:14px;
+margin-top:20px;
+background:#007bff;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
 }
 
 .update-btn:hover{
-    background:#0056b3;
+background:#0056b3;
 }
 
 </style>
@@ -87,12 +135,21 @@ th{
 
 <h2>Application Approval</h2>
 
+<!-- Capacity Information -->
+
+<div class="capacity-box">
+
+Total Capacity: <?= $total_capacity ?> |
+Approved Students: <?= $approved_students ?> |
+Remaining Seats: <?= $remaining_seats ?>
+
+</div>
+
 <?php
 if($result->num_rows == 0){
     echo "<p>No applications found.</p>";
 }
 ?>
-<?php if(isset($_GET['updated'])): ?>
 
 <?php if(isset($_GET['updated'])): ?>
 <p id="successMessage" style="color:green;font-weight:bold;">
@@ -100,9 +157,12 @@ Applications updated successfully.
 </p>
 <?php endif; ?>
 
-<?php endif; ?>
 <form method="POST" action="update_status.php"
 onsubmit="return confirm('Are you sure you want to update these application statuses?');">
+
+<button type="button" onclick="approveAll()" class="approve-all-btn">
+Mark All Approved
+</button>
 
 <table>
 
@@ -142,22 +202,22 @@ onsubmit="return confirm('Are you sure you want to update these application stat
 $hasFile = false;
 
 if(!empty($row['income_certificate'])){
-    echo '<a href="../'.$row['income_certificate'].'" target="_blank">Income</a><br>';
-    $hasFile = true;
+echo '<a href="../'.$row['income_certificate'].'" target="_blank">Income</a><br>';
+$hasFile = true;
 }
 
 if(!empty($row['pwd_certificate'])){
-    echo '<a href="../'.$row['pwd_certificate'].'" target="_blank">PWD</a><br>';
-    $hasFile = true;
+echo '<a href="../'.$row['pwd_certificate'].'" target="_blank">PWD</a><br>';
+$hasFile = true;
 }
 
 if(!empty($row['id_proof'])){
-    echo '<a href="../'.$row['id_proof'].'" target="_blank">ID</a>';
-    $hasFile = true;
+echo '<a href="../'.$row['id_proof'].'" target="_blank">ID</a>';
+$hasFile = true;
 }
 
 if(!$hasFile){
-    echo "Not Uploaded";
+echo "Not Uploaded";
 }
 ?>
 
@@ -197,20 +257,36 @@ Update All Applications
 </button>
 
 </form>
+
 <script>
 
 setTimeout(function(){
 
-    var msg = document.getElementById("successMessage");
+var msg = document.getElementById("successMessage");
 
-    if(msg){
-        msg.style.transition = "opacity 0.5s";
-        msg.style.opacity = "0";
-        setTimeout(() => msg.remove(), 500);
-    }
+if(msg){
+msg.style.transition = "opacity 0.5s";
+msg.style.opacity = "0";
+setTimeout(() => msg.remove(), 500);
+}
 
-},3000); // disappears after 3 seconds
+},3000);
 
 </script>
+
+<script>
+
+function approveAll() {
+
+let selects = document.querySelectorAll("select[name^='status']");
+
+selects.forEach(function(select){
+select.value = "approved";
+});
+
+}
+
+</script>
+
 </body>
 </html>
