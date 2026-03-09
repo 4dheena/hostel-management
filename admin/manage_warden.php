@@ -6,7 +6,56 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../index.php");
     exit;
 }
+/* ================= VALIDATION ================= */
 
+$hostel_id = $_POST['hostel_id']??'';
+$gender = $_POST['gender']??'';
+
+/* Check total wardens in hostel */
+
+$countStmt = $conn->prepare("
+SELECT COUNT(*) as total
+FROM wardens
+WHERE hostel_id = ?
+AND end_date IS NULL
+");
+
+$countStmt->bind_param("i", $hostel_id);
+$countStmt->execute();
+$countResult = $countStmt->get_result()->fetch_assoc();
+
+if ($countResult['total'] >= 2) {
+    
+    $_SESSION['message'] = "This hostel already has 2 wardens assigned.";
+        header("Location: dashboard.php");
+        exit;;
+
+    exit;
+}
+
+
+/* Check gender duplicate */
+
+$genderStmt = $conn->prepare("
+SELECT COUNT(*) as gender_count
+FROM wardens
+WHERE hostel_id = ?
+AND gender = ?
+AND end_date IS NULL
+");
+
+$genderStmt->bind_param("is", $hostel_id, $gender);
+$genderStmt->execute();
+$genderResult = $genderStmt->get_result()->fetch_assoc();
+
+if ($genderResult['gender_count'] >= 1) {
+
+    echo "<script>
+    alert('A $gender warden is already assigned to this hostel.');
+    window.history.back();
+    </script>";
+    exit;
+}
 /* UPDATE ALL WARDEN ASSIGNMENTS */
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['hostel_id'])) {

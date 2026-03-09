@@ -1,6 +1,7 @@
 <?php
 
 session_start();
+date_default_timezone_set('Asia/Kolkata');
 require_once '../database/db_connect.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {

@@ -1,12 +1,21 @@
+<?php
+require_once 'database/db_connect.php';
 
-<?php require_once 'database/db_connect.php';
- /* ================= APPLICATION WINDOW ================= */ 
- date_default_timezone_set('Asia/Kolkata');
+date_default_timezone_set('Asia/Kolkata');
 
- $result = $conn->query("SELECT start_date, end_date FROM application_settings WHERE id = 1");
-  $settings = $result->fetch_assoc();
-  $now = date('Y-m-d H:i:s'); 
-  $appWindowOpen = (
+/* ================= APPLICATION WINDOW ================= */
+
+$settingsQuery = $conn->query("
+SELECT start_date, end_date, edit_start, edit_end
+FROM application_settings
+WHERE id = 1
+");
+
+$settings = $settingsQuery->fetch_assoc();
+
+$now = date('Y-m-d H:i:s');
+
+$appWindowOpen = (
     $now >= $settings['start_date'] &&
     $now <= $settings['end_date']
 );
@@ -19,25 +28,70 @@ $editWindowOpen = (
 );
 
 
-  /* ================= STUDENT IDENTIFIER ================= */ /* TODO: replace with session later */ 
-  $student_email = 'student@example.com'; 
-  /* ================= LOAD APPLICATION ================= */ 
-  $stmt = $conn->prepare("SELECT * FROM hostel_applications WHERE student_email = ?");
-  $stmt->bind_param("s", $student_email); 
-  $stmt->execute(); 
-  $application = $stmt->get_result()->fetch_assoc(); 
-  $submitted= !empty($application['submitted_at']);
-  $editable = (
+/* ================= IDENTIFY APPLICATION ================= */
+
+/* Student enters email in form → used to reload saved application */
+
+$student_email = $_POST['personal_email'] ?? '';
+
+/* ================= LOAD EXISTING APPLICATION ================= */
+
+$application = null;
+
+if (!empty($student_email)) {
+
+    $stmt = $conn->prepare("
+        SELECT *
+        FROM hostel_applications
+        WHERE personal_email = ?
+        LIMIT 1
+    ");
+
+    $stmt->bind_param("s", $student_email);
+    $stmt->execute();
+
+    $application = $stmt->get_result()->fetch_assoc();
+}
+
+
+/* ================= SUBMISSION STATUS ================= */
+
+$submitted = !empty($application['submitted_at']);
+
+$editable = (
     ($appWindowOpen && !$submitted) ||
     ($editWindowOpen && $submitted)
 );
-  /* ================= PASSWORD CHECK ================= */ 
-  $password_set = false; 
-  $pwdStmt = $conn->prepare("SELECT password_hash FROM students WHERE email = ?"); 
-  $pwdStmt->bind_param("s", $student_email); 
-  $pwdStmt->execute(); 
-  $pwdData = $pwdStmt->get_result()->fetch_assoc(); 
-  if (!empty($pwdData['password_hash'])) { $password_set = true; } $distance_km = $application['distance_km'] ?? ''; ?> 
+
+
+/* ================= PASSWORD CHECK ================= */
+
+$password_set = false;
+
+if (!empty($student_email)) {
+
+    $pwdStmt = $conn->prepare("
+        SELECT password_hash
+        FROM hostel_applications
+        WHERE personal_email = ?
+    ");
+
+    $pwdStmt->bind_param("s", $student_email);
+    $pwdStmt->execute();
+
+    $pwdData = $pwdStmt->get_result()->fetch_assoc();
+
+    if (!empty($pwdData['password_hash'])) {
+        $password_set = true;
+    }
+}
+
+
+/* ================= DISTANCE ================= */
+
+$distance_km = $application['distance_km'] ?? '';
+
+?>
 <!DOCTYPE html> 
 <html lang="en"> 
 <head> 

@@ -108,7 +108,7 @@ background:#f4f4f4;
 
 <?php if(!empty($row['file_path'])): ?>
 
-<a href="../<?php echo $row['file_path']; ?>" target="_blank">Download</a>
+<a href="../uploads/ranklists/<?php echo $row['file_path']; ?>" target="_blank">Download</a>
 
 <?php else: ?>
 

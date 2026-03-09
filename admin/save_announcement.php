@@ -25,7 +25,7 @@ if(isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK){
         die("Only PDF files are allowed.");
     }
 
-    $upload_dir = "../uploads/announcements/";
+    $upload_dir = "../uploads/ranklists/";
 
     if(!is_dir($upload_dir)){
         mkdir($upload_dir,0777,true);
@@ -37,7 +37,7 @@ if(isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK){
 
     move_uploaded_file($file_tmp,$destination);
 
-    $file_path = "uploads/announcements/".$new_name;
+    $file_path = "uploads/ranklists/".$new_name;
 }
 
 /* Insert announcement */
