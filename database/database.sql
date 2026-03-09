@@ -143,3 +143,32 @@ CREATE TABLE announcements (
     file_path VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+   //Adheena
+   CREATE TABLE guest_requests (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
+    guest_name VARCHAR(100),
+    guest_student_id VARCHAR(50),
+    room_id INT,
+    status VARCHAR(30) DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+);
+
+//Table for inmate approval
+CREATE TABLE inmate_approvals (
+    approval_id INT AUTO_INCREMENT PRIMARY KEY,
+    request_id INT,
+    student_id INT,
+    approval_status VARCHAR(20) DEFAULT 'Pending',
+    FOREIGN KEY (request_id) REFERENCES guest_requests(request_id),
+    FOREIGN KEY (student_id) REFERENCES students(student_id)
+);
+
+// request send to warden
+SELECT COUNT(*) 
+FROM inmate_approvals
+WHERE request_id=1 AND approval_status='Pending';
+
+UPDATE guest_requests
+SET status='Approved by Inmates'
+WHERE request_id=1;
