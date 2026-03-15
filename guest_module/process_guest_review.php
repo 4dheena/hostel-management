@@ -4,7 +4,6 @@ session_start();
 require_once '../database/db_connect.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST'){
-    echo "invalid";
     exit;
 }
 
@@ -14,7 +13,7 @@ $request_id = $_POST['request_id'];
 $decision   = $_POST['decision'];
 
 
-/* FIND STUDENT ID OF CURRENT USER */
+/* GET STUDENT ID */
 
 $stmt = $conn->prepare("
 SELECT student_id
@@ -45,17 +44,26 @@ WHERE request_id = ?
 AND student_id = ?
 ");
 
-$stmt->bind_param("sii",$decision,$request_id,$student_id);
+$stmt->bind_param("sis",$decision,$request_id,$student_id);
 $stmt->execute();
 
 
-/* IF REJECTED → UPDATE MAIN REQUEST */
+/* CHECK IF UPDATE WORKED */
+
+if($stmt->affected_rows == 0){
+    echo "no_update";
+    exit;
+}
+
+
+/* IF REJECTED → END PROCESS */
 
 if($decision == "rejected"){
 
 $stmt = $conn->prepare("
 UPDATE guest_requests
-SET inmate_status='rejected', overall_status='rejected'
+SET inmate_status='rejected',
+overall_status='rejected'
 WHERE id=?
 ");
 
@@ -73,7 +81,7 @@ exit;
 $stmt = $conn->prepare("
 SELECT COUNT(*) AS pending
 FROM guest_roommate_approvals
-WHERE request_id=?
+WHERE request_id = ?
 AND approval_status != 'approved'
 ");
 
@@ -83,11 +91,15 @@ $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
 
+
+/* IF NO PENDING → SEND TO WARDEN */
+
 if($row['pending'] == 0){
 
 $stmt = $conn->prepare("
 UPDATE guest_requests
-SET inmate_status='approved', overall_status='warden_review'
+SET inmate_status='approved',
+overall_status='warden_review'
 WHERE id=?
 ");
 
@@ -95,6 +107,7 @@ $stmt->bind_param("i",$request_id);
 $stmt->execute();
 
 }
+
 
 echo "approved";
 

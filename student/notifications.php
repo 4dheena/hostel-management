@@ -9,24 +9,20 @@ exit();
 }
 
 $user_id = $_SESSION['user_id'];
-
-/* get hostel id */
-
 $stmt = $conn->prepare("
-SELECT hostel_id
+SELECT student_id
 FROM students
 WHERE user_id = ?
 ");
 
 $stmt->bind_param("i",$user_id);
 $stmt->execute();
-$result = $stmt->get_result();
-$student = $result->fetch_assoc();
 
-$hostel_id = $student['hostel_id'];
+$res = $stmt->get_result();
+$student = $res->fetch_assoc();
 
+$student_id = $student['student_id'];
 
-/* fetch notifications */
 /* fetch notifications */
 
 $query = $conn->prepare("
@@ -46,7 +42,6 @@ ORDER BY created_at DESC
 
 $query->bind_param("i",$user_id);
 $query->execute();
-
 $notifications = $query->get_result();
 
 ?>
@@ -103,6 +98,18 @@ border:none;
 border-radius:4px;
 cursor:pointer;
 }
+
+.reviewed{
+margin-top:10px;
+padding:6px 12px;
+background:#6c757d;
+color:white;
+border:none;
+border-radius:4px;
+cursor:not-allowed;
+}
+
+/* MODAL */
 
 .modal{
 display:none;
@@ -168,30 +175,53 @@ border-radius:4px;
 <div class="notification-card <?= $row['is_read'] == 0 ? 'unread' : '' ?>">
 
 <div class="notification-title">
-
 <?= htmlspecialchars($row['title']) ?>
-
 </div>
 
 <div>
-
 <?= htmlspecialchars($row['message']) ?>
-
 </div>
 
 <?php if($row['type'] == 'guest_request'): ?>
 
-<button class="review-btn"
-onclick="openGuestModal(<?= $row['reference_id'] ?>)">
+<?php
+
+/* check approval status */
+
+$stmt2 = $conn->prepare("
+SELECT approval_status
+FROM guest_roommate_approvals
+WHERE request_id = ?
+AND student_id = ?
+");
+
+$stmt2->bind_param("ii",$row['reference_id'],$student_id);
+$stmt2->execute();
+
+$res2 = $stmt2->get_result();
+$status = $res2->fetch_assoc();
+
+if($status && $status['approval_status'] != 'pending'){
+?>
+
+<button class="reviewed" disabled>
+Reviewed
+</button>
+
+<?php } else { ?>
+
+<button 
+class="review-btn"
+onclick="openGuestModal(<?= $row['reference_id']?>,this)">
 Review
 </button>
+
+<?php } ?>
 
 <?php endif; ?>
 
 <div class="notification-time">
-
 <?= date("d M Y H:i",strtotime($row['created_at'])) ?>
-
 </div>
 
 </div>
@@ -224,10 +254,12 @@ Review
 <script>
 
 let currentRequest = null;
+let currentButton = null;
 
-function openGuestModal(requestId){
+function openGuestModal(requestId, button){
 
 currentRequest = requestId;
+currentButton = button;
 
 fetch("../guest_module/fetch_guest_request.php?id=" + requestId)
 .then(res => res.json())
@@ -237,6 +269,8 @@ document.getElementById("guestDetails").innerHTML = `
 <p><b>Name:</b> ${data.guest_name}</p>
 <p><b>Email:</b> ${data.guest_email}</p>
 <p><b>Phone:</b> ${data.guest_phone}</p>
+<p><b>Stay From:</b> ${data.stay_from}</p>
+<p><b>Stay To:</b> ${data.stay_to}</p>
 <p><b>Message:</b> ${data.request_message}</p>
 `;
 
@@ -251,17 +285,15 @@ document.getElementById("guestModal").style.display="none";
 }
 
 function approveGuest(){
-alert("Approving guest request...");
 processDecision("approved");
 }
 
 function rejectGuest(){
-alert("Rejecting guest request...");
 processDecision("rejected");
 }
 
 function processDecision(decision){
-alert("Submitting your decision...");
+
 fetch("../guest_module/process_guest_review.php",{
 method:"POST",
 headers:{'Content-Type':'application/x-www-form-urlencoded'},
@@ -270,22 +302,26 @@ body:`request_id=${currentRequest}&decision=${decision}`
 .then(res => res.text())
 .then(data => {
 
-console.log("Server response:", data);
-
-alert("Review submitted successfully.");
-
 if(currentButton){
 currentButton.textContent = "Reviewed";
+currentButton.classList.remove("review-btn");
+currentButton.classList.add("reviewed");
 currentButton.disabled = true;
 }
 
 closeModal();
 
-})
-.catch(error=>{
-console.error("Fetch error:", error);
-alert("Something went wrong while submitting review.");
 });
+
+}
+
+window.onclick = function(event){
+
+let modal = document.getElementById("guestModal");
+
+if(event.target == modal){
+modal.style.display="none";
+}
 
 }
 

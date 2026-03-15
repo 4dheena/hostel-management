@@ -228,16 +228,16 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 
 <h2>ARUVI</h2>
 
-<a href="#">Dashboard</a>
-<a href="#">Attendance</a>
-<a href="#">Mess</a>
-<a href="#">GBM</a>
-<a href="#">Community Chat</a>
-<a href="#">Fees</a>
-<a href="#">Feedback</a>
-<a href="#">Complaints</a>
-<a href="#">Services</a>
-<a href="#">Notifications</a>
+<a href="dashboard.php">Dashboard</a>
+<a href="attendance.php">Attendance</a>
+<a href="mess.php">Mess</a>
+<a href="gbm.php">GBM</a>
+<a href="community_chat.php">Community Chat</a>
+<a href="fees.php">Fees</a>
+<a href="feedback.php">Feedback</a>
+<a href="complaints.php">Complaints</a>
+<a href="services.php">Services</a>
+<a href="notifications.php">Notifications</a>
 <a href="../auth/logout.php">Logout</a>
 
 </div>
