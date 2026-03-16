@@ -12,7 +12,7 @@ $request_id = $_POST['request_id'];
 $decision   = $_POST['decision'];
 $reason     = $_POST['reject_reason'] ?? '';
 
-/* GET GUEST STUDENT USER ID */
+/* GET GUEST USER */
 
 $stmt = $conn->prepare("
 SELECT u.user_id
@@ -31,7 +31,7 @@ $row = $res->fetch_assoc();
 $guest_user_id = $row['user_id'] ?? null;
 
 
-/* ADMIN APPROVES */
+/* ================= ADMIN APPROVES ================= */
 
 if($decision === "approved"){
 
@@ -45,17 +45,17 @@ WHERE id=?
 $stmt->bind_param("i",$request_id);
 $stmt->execute();
 
-/* notify guest */
 
 if($guest_user_id){
 
 $title = "Guest Stay Approved";
-$message = "Your guest stay request has been approved by the admin.";
+$message = "Admin approved your guest stay request.";
 
 $type = "guest_final_status";
 
 $stmt = $conn->prepare("
-INSERT INTO notifications (user_id,title,message,type,reference_id)
+INSERT INTO notifications
+(user_id,title,message,type,reference_id)
 VALUES (?,?,?,?,?)
 ");
 
@@ -75,7 +75,8 @@ $stmt->execute();
 }
 
 
-/* ADMIN REJECTS */
+
+/* ================= ADMIN REJECTS ================= */
 
 if($decision === "rejected"){
 
@@ -90,7 +91,6 @@ WHERE id=?
 $stmt->bind_param("si",$reason,$request_id);
 $stmt->execute();
 
-/* notify guest */
 
 if($guest_user_id){
 
@@ -100,7 +100,8 @@ $message = "Admin rejected your guest stay request. Reason: ".$reason;
 $type = "guest_final_status";
 
 $stmt = $conn->prepare("
-INSERT INTO notifications (user_id,title,message,type,reference_id)
+INSERT INTO notifications
+(user_id,title,message,type,reference_id)
 VALUES (?,?,?,?,?)
 ");
 
