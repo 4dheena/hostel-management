@@ -3,22 +3,16 @@
 require_once '../database/db_connect.php';
 
 if(!isset($_GET['id'])){
-    echo json_encode(["error"=>"No request ID"]);
+    echo json_encode(["error" => "No request ID"]);
     exit;
 }
 
 $request_id = $_GET['id'];
 
+/* FETCH GUEST REQUEST DETAILS */
+
 $stmt = $conn->prepare("
-SELECT 
-guest_name,
-guest_email,
-guest_phone,
-room_number,
-stay_from,
-stay_to,
-request_message,
-id_proof_path
+SELECT guest_name, guest_email, guest_phone, request_message
 FROM guest_requests
 WHERE id = ?
 ");
@@ -29,12 +23,14 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if($result->num_rows == 0){
-    echo json_encode(["error"=>"Request not found"]);
+    echo json_encode(["error" => "Request not found"]);
     exit;
 }
 
-$data = $result->fetch_assoc();
+$row = $result->fetch_assoc();
 
-echo json_encode($data);
+/* RETURN JSON */
+
+echo json_encode($row);
 
 ?>

@@ -22,7 +22,6 @@ $request_message = $_POST['request_message'] ?? '';
 
 $email_updates = isset($_POST['email_updates']) ? 1 : 0;
 
-
 /* HANDLE ID PROOF UPLOAD */
 
 $id_proof_path = NULL;
@@ -36,6 +35,15 @@ if(isset($_FILES['id_proof']) && $_FILES['id_proof']['error'] === UPLOAD_ERR_OK)
     }
 
     $file_tmp = $_FILES['id_proof']['tmp_name'];
+    $file_name = $_FILES['id_proof']['name'];
+
+    $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+    /* ALLOW ONLY PDF */
+
+    if($ext !== "pdf"){
+        die("Only PDF files are allowed for ID proof.");
+    }
 
     $new_name = uniqid().".pdf";
 
@@ -73,18 +81,20 @@ $room_id = $room['room_id'];
 
 $stmt = $conn->prepare("
 INSERT INTO guest_requests
-(guest_student_id,guest_name,guest_email,guest_phone,hostel_id,room_number,request_message,email_updates)
-VALUES (?,?,?,?,?,?,?,?)
+(guest_student_id,guest_name,guest_email,guest_phone,hostel_id,room_number,stay_from,stay_to,request_message,email_updates,id_proof_path)
+VALUES (?,?,?,?,?,?,?,?,?,?,?)
 ");
 
 $stmt->bind_param(
-"ssssissi",
+"ssssissssis",
 $guest_student_id,
 $guest_name,
 $email,
 $phone,
 $hostel_id,
 $room_number,
+$stay_from,
+$stay_to,
 $request_message,
 $email_updates
 );

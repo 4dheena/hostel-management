@@ -139,11 +139,33 @@ margin-top:10px;
 
 <br>
 
+<?php
+$req = $conn->prepare("
+SELECT admin_status
+FROM guest_requests
+WHERE id = ?
+");
+
+$req->bind_param("i",$row['reference_id']);
+$req->execute();
+$r = $req->get_result()->fetch_assoc();
+?>
+
+<?php if($r && ($r['admin_status'] == 'approved' || $r['admin_status'] == 'rejected')): ?>
+
+<button class="review-btn" disabled style="background:gray;">
+Reviewed
+</button>
+
+<?php else: ?>
+
 <button
 class="review-btn"
-onclick="openGuestModal(<?= $row['reference_id']?>)">
+onclick="openGuestModal('<?= $row['reference_id'] ?>')">
 Review
 </button>
+
+<?php endif; ?>
 
 <?php endif; ?>
 
@@ -209,30 +231,25 @@ Submit Rejection
 
 function openGuestModal(id){
 
-fetch("fetch_guest_request.php?id="+id)
-.then(res=>res.json())
-.then(data=>{
+fetch("fetch_guest_request_admin.php?id=" + id)
+.then(res => res.text())
+.then(text => {
+
+console.log(text); // VERY IMPORTANT
+
+let data = JSON.parse(text);
 
 document.getElementById("modalRequestId").value=id;
 
 document.getElementById("guestDetails").innerHTML=`
-
-<p><b>Guest Name:</b> ${data.guest_name}</p>
-
+<p><b>Name:</b> ${data.guest_name}</p>
 <p><b>Email:</b> ${data.guest_email}</p>
-
 <p><b>Phone:</b> ${data.guest_phone}</p>
-
 <p><b>Room:</b> ${data.room_number}</p>
-
 <p><b>Stay From:</b> ${data.stay_from}</p>
-
 <p><b>Stay To:</b> ${data.stay_to}</p>
-
 <p><b>Warden:</b> ${data.warden_name}</p>
-
 <p><b>Warden Remark:</b> ${data.warden_remark ?? "None"}</p>
-
 `;
 
 document.getElementById("guestModal").style.display="block";
@@ -240,7 +257,6 @@ document.getElementById("guestModal").style.display="block";
 });
 
 }
-
 function closeModal(){
 document.getElementById("guestModal").style.display="none";
 }
