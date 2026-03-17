@@ -158,7 +158,7 @@ Download Guidelines
 
 <div class="form-group full-width">
 <label>Upload ID Proof</label>
-<input type="file" name="id_proof" required>
+<input type="file" name="id_proof" accept="application/pdf" required>
 </div>
 
 <div class="form-group full-width">

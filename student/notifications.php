@@ -178,7 +178,7 @@ border-radius:4px;
 <?= htmlspecialchars($row['title']) ?>
 </div>
 
-<div>
+<div style="white-space:pre-wrap;word-break:break-word;">
 <?= htmlspecialchars($row['message']) ?>
 </div>
 
@@ -271,7 +271,8 @@ document.getElementById("guestDetails").innerHTML = `
 <p><b>Phone:</b> ${data.guest_phone}</p>
 <p><b>Stay From:</b> ${data.stay_from}</p>
 <p><b>Stay To:</b> ${data.stay_to}</p>
-<p><b>Message:</b> ${data.request_message}</p>
+<p><b>Message:</b></p>
+<div style="white-space:pre-wrap;word-break:break-word;background:#f4f6f9;padding:10px;border-radius:6px;">${data.request_message}</div>
 `;
 
 document.getElementById("guestModal").style.display="block";
