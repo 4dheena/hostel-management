@@ -7,7 +7,7 @@ $request_id = $_POST['request_id'];
 $decision = $_POST['decision'];
 $reason = $_POST['reject_reason'] ?? '';
 
-$admin_id = 1; // admin user id
+$admin_id = 9; // admin user id
 
 /* WARDEN APPROVED */
 
@@ -48,7 +48,7 @@ if($decision === "rejected"){
 $stmt = $conn->prepare("
 UPDATE guest_requests
 SET warden_status='rejected',
-overall_status='rejected_by_warden',
+overall_status='admin_review',
 warden_remark=?
 WHERE id=?
 ");
@@ -59,17 +59,17 @@ $stmt->execute();
 /* notify admin */
 
 $title = "Guest Request Rejected by Warden";
-$message = "Warden rejected a guest stay request.";
+$message = "Warden rejected a guest stay request. Reason: " . $reason;
 
 $type = "guest_admin_review";
 
-$stmt = $conn->prepare("
+$stmt2 = $conn->prepare("
 INSERT INTO notifications (user_id,title,message,type,reference_id)
 VALUES (?,?,?,?,?)
 ");
-
-$stmt->bind_param("isssi",$admin_id,$title,$message,$type,$request_id);
-$stmt->execute();
+    
+$stmt2->bind_param("isssi",$admin_id,$title,$message,$type,$request_id);
+$stmt2->execute();
 
 }
 

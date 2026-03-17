@@ -36,12 +36,17 @@ background:#f4f6f9;
 padding:40px;
 }
 
+h2{
+margin-bottom:25px;
+}
+
 .notification-card{
 background:white;
 padding:18px;
 border-radius:8px;
 margin-bottom:15px;
 border:1px solid #ddd;
+box-shadow:0 2px 5px rgba(0,0,0,0.05);
 }
 
 .notification-title{
@@ -62,6 +67,11 @@ border:none;
 padding:6px 12px;
 border-radius:4px;
 cursor:pointer;
+}
+
+.reviewed{
+background:gray;
+cursor:not-allowed;
 }
 
 .modal{
@@ -113,6 +123,13 @@ textarea{
 width:100%;
 height:80px;
 margin-top:10px;
+padding:8px;
+}
+
+.section{
+margin-top:15px;
+padding-top:10px;
+border-top:1px solid #eee;
 }
 
 </style>
@@ -149,23 +166,18 @@ WHERE id = ?
 $req->bind_param("i",$row['reference_id']);
 $req->execute();
 $r = $req->get_result()->fetch_assoc();
+
+$isReviewed = $r && ($r['admin_status'] == 'approved' || $r['admin_status'] == 'rejected');
 ?>
 
-<?php if($r && ($r['admin_status'] == 'approved' || $r['admin_status'] == 'rejected')): ?>
-
-<button class="review-btn" disabled style="background:gray;">
-Reviewed
-</button>
-
-<?php else: ?>
-
 <button
-class="review-btn"
+class="review-btn <?= $isReviewed ? 'reviewed' : '' ?>"
+<?= $isReviewed ? 'disabled' : '' ?>
 onclick="openGuestModal('<?= $row['reference_id'] ?>')">
-Review
-</button>
 
-<?php endif; ?>
+<?= $isReviewed ? 'Reviewed' : 'Review' ?>
+
+</button>
 
 <?php endif; ?>
 
@@ -179,8 +191,6 @@ Review
 
 
 
-<!-- MODAL -->
-
 <div id="guestModal" class="modal">
 
 <div class="modal-content">
@@ -191,35 +201,46 @@ Review
 
 <div id="guestDetails"></div>
 
-<form action="process_admin_guest_review.php" method="POST">
+<input type="hidden" id="modalRequestId">
 
-<input type="hidden" name="request_id" id="modalRequestId">
+<div id="normalActions" class="section">
 
-<br>
+<button type="button" class="approve" onclick="approveFinal()">Approve</button>
 
-<button class="approve" name="decision" value="approved">
-Approve
-</button>
-
-<button type="button" class="reject" onclick="showReject()">
-Reject
-</button>
-
-<div id="rejectBox" style="display:none">
-
-<label>Reject Reason:</label>
-
-<textarea name="reject_reason"></textarea>
-
-<br><br>
-
-<button class="reject" name="decision" value="rejected">
-Submit Rejection
-</button>
+<button type="button" class="reject" onclick="showRejectBox()">Reject</button>
 
 </div>
 
-</form>
+<div id="wardenRejectActions" class="section" style="display:none">
+
+<button type="button" class="approve" onclick="acceptWardenDecision()">Approve Warden Decision</button>
+
+<button type="button" class="reject" onclick="showOverrideBox()">Override Decision</button>
+
+</div>
+
+<div id="rejectBox" class="section" style="display:none">
+
+<label>Reject Reason:</label>
+<textarea id="rejectReason"></textarea>
+
+<br><br>
+
+<button type="button" class="reject" onclick="submitReject()">Submit</button>
+
+</div>
+
+<div id="overrideBox" class="section" style="display:none">
+
+<label>Reason for Override:</label>
+<textarea id="overrideReason"></textarea>
+
+<br><br>
+
+<button type="button" class="approve" onclick="overrideApprove()">Approve Student</button>
+<button type="button" class="reject" onclick="overrideReject()">Reject Student</button>
+
+</div>
 
 </div>
 
@@ -229,17 +250,25 @@ Submit Rejection
 
 <script>
 
+let currentRequest = null;
+
 function openGuestModal(id){
+
+currentRequest = id;
 
 fetch("fetch_guest_request_admin.php?id=" + id)
 .then(res => res.text())
 .then(text => {
 
-console.log(text); // VERY IMPORTANT
-
 let data = JSON.parse(text);
 
-document.getElementById("modalRequestId").value=id;
+if(data.warden_status === "rejected"){
+document.getElementById("normalActions").style.display = "none";
+document.getElementById("wardenRejectActions").style.display = "block";
+}else{
+document.getElementById("normalActions").style.display = "block";
+document.getElementById("wardenRejectActions").style.display = "none";
+}
 
 document.getElementById("guestDetails").innerHTML=`
 <p><b>Name:</b> ${data.guest_name}</p>
@@ -249,20 +278,64 @@ document.getElementById("guestDetails").innerHTML=`
 <p><b>Stay From:</b> ${data.stay_from}</p>
 <p><b>Stay To:</b> ${data.stay_to}</p>
 <p><b>Warden:</b> ${data.warden_name}</p>
-<p><b>Warden Remark:</b> ${data.warden_remark ?? "None"}</p>
+<p><b>Warden Remark:</b> ${data.warden_remarks ?? "None"}</p>
 `;
 
 document.getElementById("guestModal").style.display="block";
 
 });
-
 }
+
 function closeModal(){
 document.getElementById("guestModal").style.display="none";
 }
 
-function showReject(){
+function processAdmin(action, reason){
+
+fetch("process_admin_guest_review.php",{
+method:"POST",
+headers:{'Content-Type':'application/x-www-form-urlencoded'},
+body:`request_id=${currentRequest}&action=${action}&reason=${reason}`
+})
+.then(res => res.text())
+.then(data => {
+alert("Action completed successfully");
+location.reload();
+});
+}
+
+function approveFinal(){
+processAdmin("approved","");
+}
+
+function showRejectBox(){
 document.getElementById("rejectBox").style.display="block";
+}
+
+function submitReject(){
+let reason = document.getElementById("rejectReason").value;
+if(!reason){ alert("Please enter reason"); return; }
+processAdmin("rejected", reason);
+}
+
+function acceptWardenDecision(){
+processAdmin("accept_warden","");
+}
+
+function showOverrideBox(){
+document.getElementById("overrideBox").style.display="block";
+}
+
+function overrideApprove(){
+let reason = document.getElementById("overrideReason").value;
+if(!reason){ alert("Enter reason"); return; }
+processAdmin("override_approve", reason);
+}
+
+function overrideReject(){
+let reason = document.getElementById("overrideReason").value;
+if(!reason){ alert("Enter reason"); return; }
+processAdmin("override_reject", reason);
 }
 
 </script>

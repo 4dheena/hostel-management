@@ -2,6 +2,7 @@
 
 session_start();
 require_once '../database/db_connect.php';
+require_once '../utils/send_email.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST'){
     exit;
@@ -70,7 +71,59 @@ WHERE id=?
 $stmt->bind_param("i",$request_id);
 $stmt->execute();
 
-echo "rejected";
+
+
+/* GET GUEST DETAILS */
+$stmt = $conn->prepare("
+SELECT guest_name, guest_email, room_number, stay_from, stay_to
+FROM guest_requests
+WHERE id = ?
+");
+
+$stmt->bind_param("i",$request_id);
+$stmt->execute();
+
+$res = $stmt->get_result();
+$guest = $res->fetch_assoc();
+
+$name  = $guest['guest_name'];
+$email = $guest['guest_email'];
+$room  = $guest['room_number'];
+$from  = $guest['stay_from'];
+$to    = $guest['stay_to'];
+
+/* EMAIL */
+
+$subject = "Guest Stay Request Rejected by Roommates";
+
+$message = "
+<h2>Guest Stay Request Update ❌</h2>
+
+<p>Dear <b>$name</b>,</p>
+
+<p>Your request to stay in the hostel has been reviewed by the inmates of Room <b>$room</b>.</p>
+
+<p><b>Status:</b> Rejected</p>
+
+<p>One or more inmates did not approve your request. As per hostel policy, approval from all inmates is mandatory.</p>
+
+<hr>
+
+<p><b>Requested Stay:</b></p>
+<ul>
+<li>From: $from</li>
+<li>To: $to</li>
+</ul>
+
+<hr>
+
+<p>If you have any concerns, please contact the hostel office.</p>
+
+<p>Regards,<br>
+Hostel Management System</p>
+";
+
+sendEmail($email,$subject,$message);
 exit;
 
 }

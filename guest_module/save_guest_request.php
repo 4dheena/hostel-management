@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 require_once '../database/db_connect.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST'){
@@ -22,7 +22,6 @@ $request_message = $_POST['request_message'] ?? '';
 
 $email_updates = isset($_POST['email_updates']) ? 1 : 0;
 
-
 /* HANDLE ID PROOF UPLOAD */
 
 $id_proof_path = NULL;
@@ -36,15 +35,14 @@ if(isset($_FILES['id_proof']) && $_FILES['id_proof']['error'] === UPLOAD_ERR_OK)
     }
 
     $file_tmp = $_FILES['id_proof']['tmp_name'];
-    
-     $file_name = $_FILES['id_proof']['name'];
+    $file_name = $_FILES['id_proof']['name'];
 
     $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
+    /* ALLOW ONLY PDF */
+
     if($ext !== "pdf"){
-        $_SESSION['error'] = "Only PDF files are allowed for ID proof.";
-        header("Location: ../forms.php");
-        exit;
+        die("Only PDF files are allowed for ID proof.");
     }
 
     $new_name = uniqid().".pdf";
@@ -71,11 +69,8 @@ $stmt->execute();
 
 $result = $stmt->get_result();
 
-
 if($result->num_rows == 0){
-    $_SESSION['error'] = "Invalid room number.";
-    header("Location: ../forms.php");
-    exit;
+    die("Invalid room number.");
 }
 
 $room = $result->fetch_assoc();
@@ -86,7 +81,7 @@ $room_id = $room['room_id'];
 
 $stmt = $conn->prepare("
 INSERT INTO guest_requests
-(guest_student_id,guest_name,gender,guest_email,guest_phone,hostel_id,room_number,stay_from,stay_to,request_message,email_updates,id_proof_path)
+(guest_student_id,guest_name,guest_email,guest_phone,gender,hostel_id,room_number,stay_from,stay_to,request_message,email_updates,id_proof_path)
 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
 ");
 
@@ -94,9 +89,9 @@ $stmt->bind_param(
 "sssssissssis",
 $guest_student_id,
 $guest_name,
-$gender,
 $email,
 $phone,
+$gender,
 $hostel_id,
 $room_number,
 $stay_from,
@@ -204,8 +199,8 @@ while($row = $roommates->fetch_assoc()){
 
 
 /* SUCCESS */
-$_SESSION['success'] = "Guest request submitted successfully!";
-header("Location: ../forms.php");
+
+header("Location: ../forms.php?success=guest_request_submitted");
 exit;
 
 ?>

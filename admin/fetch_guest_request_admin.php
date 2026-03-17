@@ -21,6 +21,7 @@ g.stay_from,
 g.stay_to,
 g.request_message,
 g.warden_remark,
+g.warden_status,
 w.full_name AS warden_name
 FROM guest_requests g
 LEFT JOIN wardens w
