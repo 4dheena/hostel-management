@@ -300,7 +300,7 @@ body:`request_id=${currentRequest}&action=${action}&reason=${reason}`
 .then(res => res.text())
 .then(data => {
 alert("Action completed successfully");
-location.reload();
+window.location.href = "notifications.php";
 });
 }
 

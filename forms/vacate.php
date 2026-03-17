@@ -197,6 +197,7 @@ document.getElementById("vacateForm").addEventListener("submit", function(e){
 e.preventDefault();
 
 let vacateRequest = {
+
 name: document.getElementById("name").value,
 hostelID: document.getElementById("hostelID").value,
 room: document.getElementById("room").value,
@@ -205,6 +206,7 @@ course: document.getElementById("course").value,
 vacateDate: document.getElementById("vacateDate").value,
 reason: document.getElementById("reason").value,
 status: "Pending"
+
 };
 
 let vacateData = JSON.parse(localStorage.getItem("vacateRequests")) || [];

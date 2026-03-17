@@ -73,6 +73,14 @@ $rankStatus = $conn->query("
     WHERE priority_score IS NOT NULL
 ")->fetch_assoc()['calculated'];
 
+
+$allottedStudents = $conn->query("
+    SELECT COUNT(*) AS total 
+    FROM hostel_applications 
+    WHERE status = 'approved'
+")->fetch_assoc()['total'];
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -202,7 +210,7 @@ $rankStatus = $conn->query("
 
 <div class="stat-box">
 <h3>Allotted Students</h3>
-<p>—</p>
+<p><?= $allottedStudents ?></p>
 </div>
 
 </section>

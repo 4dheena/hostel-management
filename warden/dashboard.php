@@ -11,6 +11,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'warden') {
 
 $user_id = $_SESSION['user_id'];
 
+
+
 /* FETCH WARDEN DETAILS */
 
 $stmt = $conn->prepare("
@@ -44,22 +46,49 @@ $profileImage = $defaultImage;
 
 /* ANALYTICS */
 
+// get hostel_id
+
+$warden_q = $conn->query("
+    SELECT hostel_id FROM wardens WHERE user_id = $user_id
+");
+
+$warden = $warden_q->fetch_assoc();
+$hostel_id = $warden['hostel_id'];
+
+
+// get hostel details
+$hostel_q = $conn->query("
+    SELECT capacity, room_sharing 
+    FROM hostels 
+    WHERE hostel_id = $hostel_id
+");
+
+$hostel = $hostel_q->fetch_assoc();
+
+$capacity = $hostel['capacity'];
+$sharing = $hostel['room_sharing'];
+
+
+// total students
 $totalStudents = $conn->query("
-SELECT COUNT(*) AS total FROM students
+    SELECT COUNT(*) AS total 
+    FROM students 
+    WHERE hostel_id = $hostel_id
 ")->fetch_assoc()['total'];
 
-$totalRooms = $conn->query("
-SELECT COUNT(*) AS total FROM rooms
-")->fetch_assoc()['total'];
 
-$occupiedRooms = $conn->query("
-SELECT COUNT(DISTINCT hostel_id) AS occupied
-FROM students
-WHERE hostel_id IS NOT NULL
-")->fetch_assoc()['occupied'];
+// total rooms (derived)
+$totalRooms = ceil($capacity / $sharing);
 
+// occupied rooms
+$occupiedRooms = ceil($totalStudents / $sharing);
+
+// vacant rooms
 $vacantRooms = $totalRooms - $occupiedRooms;
 
+
+// safety
+$vacantRooms = max(0, $vacantRooms);
 /* GENERAL ANNOUNCEMENTS */
 
 $announcements = $conn->query("
@@ -283,8 +312,8 @@ labels: ['Occupied Rooms','Vacant Rooms'],
 datasets: [{
 data: [<?= $occupiedRooms ?>, <?= $vacantRooms ?>],
 backgroundColor: [
-'#1aa6a6',
-'#e0e0e0'
+'#c29117',
+'#5eb1c2'
 ]
 }]
 },

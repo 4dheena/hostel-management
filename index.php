@@ -107,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <div class="hero-buttons">
           <button class="btn primary" onclick= "window.location.href='apply.php'">Apply now</button>
-          <button class="btn outline">View Vacancy</button>
+          <a href="admin/analytics.php"><button class="btn outline" >View Vacancy</button></a>
         </div>
 
         <div class="stats">
