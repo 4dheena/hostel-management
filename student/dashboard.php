@@ -214,6 +214,31 @@ border-radius:12px;
 box-shadow:0 8px 18px rgba(0,0,0,0.08);
 }
 
+.modal {
+    display: none;
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: white;
+    width: 320px;
+    margin: 8% auto;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.modal-content input,
+.modal-content textarea {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+}
+
+
+
 </style>
 
 </head>
@@ -283,7 +308,7 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 
 <div class="actions">
 <a href="view_allotment.php" class="btn">View Allotment</a>
-<a href="stay_permission.php" class="btn">Stay Permission</a>
+<a href="#" onclick="openModal()" class="btn">Stay Permission</a>
 </div>
 
 </div>
@@ -316,6 +341,45 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 </div>
 
 </div>
+<div id="permissionModal" class="modal">
+    <div class="modal-content">
 
+        <h3>Stay Permission</h3>
+
+        <form method="POST" enctype="multipart/form-data" autocomplete="off" action="submit_permission.php">
+
+            <input type="text" name="guest_name" placeholder="Guest Name" required>
+
+            <input type="text" name="relation" placeholder="Relation" required>
+
+            <label>From Date</label>
+            <input type="date" name="from_date" required>
+
+            <label>To Date</label>
+            <input type="date" name="to_date" required>
+
+            <textarea name="reason" placeholder="Reason" required></textarea>
+
+            <label>ID Proof</label>
+            <input type="file" name="id_proof" required>
+
+            <div style="margin-top:10px;">
+                <button type="submit">Submit</button>
+                <button type="button" onclick="closeModal()">Cancel</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+<script>
+function openModal(){
+    document.getElementById("permissionModal").style.display = "block";
+}
+
+function closeModal(){
+    document.getElementById("permissionModal").style.display = "none";
+}
+</script>
 </body>
 </html>

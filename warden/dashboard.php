@@ -118,7 +118,7 @@ LIMIT 5
 .quick-actions{
 margin-top:25px;
 background:#fff;
-padding:20px;
+padding:30px;
 border-radius:8px;
 }
 
@@ -126,6 +126,7 @@ border-radius:8px;
 display:flex;
 gap:15px;
 flex-wrap:wrap;
+padding: 20px;
 }
 
 .action-buttons a{
@@ -244,9 +245,6 @@ border-radius:8px;
 
 <a href="write_announcement.php">Write Announcement</a>
 
-<a href="complaints.php">View Complaints</a>
-
-<a href="attendance.php">Attendance Tracker</a>
 
 </div>
 
