@@ -12,9 +12,10 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 /* fetch student + user data */
-$sql = "SELECT s.*, u.profile_image 
+$sql = "SELECT s.*, u.profile_image,r.room_number 
         FROM students s
         JOIN users u ON s.user_id = u.user_id
+        LEFT JOIN rooms r ON s.room_id = r.room_id
         WHERE s.user_id = ?";
 
 $stmt = $conn->prepare($sql);
@@ -31,8 +32,8 @@ $phone = $student['phone'] ?? "-";
 $hostel = $student['hostel_id'] ?? "-";
 
 /* room logic */
-if (!empty($student['room_id'])) {
-    $room = $student['room_id'];
+if (!empty($student['room_number'])) {
+    $room = $student['room_number'];
 } else {
     $room = "Not Allotted";
 }
@@ -257,10 +258,8 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 <a href="attendance.php">Attendance</a>
 <a href="mess.php">Mess</a>
 <a href="gbm.php">GBM</a>
-<a href="community_chat.php">Community Chat</a>
 <a href="fees.php">Fees</a>
 <a href="feedback.php">Feedback</a>
-<a href="complaints.php">Complaints</a>
 <a href="services.php">Services</a>
 <a href="notifications.php">Notifications</a>
 <a href="../auth/logout.php">Logout</a>
