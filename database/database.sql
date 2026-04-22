@@ -58,6 +58,7 @@ CREATE TABLE payments (
   amount DECIMAL(8,2),
   payment_date DATE,
   status VARCHAR(20),
+  razorpay_payment_id VARCHAR(100),
   FOREIGN KEY (student_id) REFERENCES students(student_id)
 );
 
@@ -179,4 +180,30 @@ CREATE TABLE IF NOT EXISTS mess_attendance (
   attendance_date DATE NOT NULL,
   recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY unique_student_date (student_id, attendance_date)
+);
+
+CREATE TABLE mess_cuts (
+  mess_cut_id INT PRIMARY KEY AUTO_INCREMENT,
+  student_id VARCHAR(50) NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES students(student_id)
+);
+
+CREATE TABLE bills (
+  bill_id INT PRIMARY KEY AUTO_INCREMENT,
+  student_id VARCHAR(50) NOT NULL,
+  month INT NOT NULL,
+  year INT NOT NULL,
+  total_days INT NOT NULL,
+  mess_cut_days INT DEFAULT 0,
+  effective_days INT NOT NULL,
+  amount DECIMAL(8,2) NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',
+  payment_date DATE NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  UNIQUE KEY unique_student_month_year (student_id, month, year)
 );
