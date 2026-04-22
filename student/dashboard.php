@@ -258,6 +258,7 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 <a href="attendance.php">Attendance</a>
 <a href="mess.php">Mess</a>
 <a href="gbm.php">GBM</a>
+<a href="complaints.php">Complaints</a>
 <a href="fees.php">Fees</a>
 <a href="feedback.php">Feedback</a>
 <a href="services.php">Services</a>
@@ -322,7 +323,7 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 <div class="card">
 
 <h3>Attendance Summary</h3>
-<p>--</p>
+<p>-- %</p>
 
 </div>
 
