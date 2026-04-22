@@ -1,3 +1,21 @@
+<?php
+include("../database/db_connect.php");
+
+if(isset($_POST['submit'])) {
+
+    $name = $_POST['student_name'];
+    $current = $_POST['current_room'];
+    $requested = $_POST['requested_room'];
+    $reason = $_POST['reason'];
+
+    $sql = "INSERT INTO room_swap_requests 
+    (student_name, current_room, requested_room, reason) 
+    VALUES 
+    ('$name','$current','$requested','$reason')";
+
+    mysqli_query($conn, $sql);
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -161,77 +179,45 @@ button:hover {
 Student 1 will receive Student 2's room, and Student 2 will receive Student 1's room.
 </p>
 
-<form id="swapForm">
-
-<!-- Student 1 -->
+<form method="POST" action="">
 
 <div class="section">
-
 <h3>Student 1 (Requesting Swap)</h3>
 
 <div class="form-grid">
-<div>
-<label>Student Name</label>
-<input type="text" id="name1" required>
-</div>
 
 <div>
-<label>Hostel ID</label>
-<input type="text" id="hostelID1" required>
+<label>Student Name</label>
+<input type="text" name="student_name" required>
 </div>
 
 <div>
 <label>Current Room Number</label>
-<input type="text" id="room1" required>
+<input type="text" name="current_room" required>
 </div>
+
+<div>
+<label>Requested Room Number</label>
+<input type="text" name="requested_room" required>
 </div>
 
 </div>
-
-<!-- Student 2 -->
+</div>
 
 <div class="section">
-
-<h3>Student 2 (Agreeing to Swap)</h3>
-
-<div class="form-grid">
-<div>
-<label>Student Name</label>
-<input type="text" id="name2" required>
-</div>
-
-<div>
-<label>Hostel ID</label>
-<input type="text" id="hostelID2" required>
-</div>
-
-<div>
-<label>Current Room Number</label>
-<input type="text" id="room2" required>
-</div>
-</div>
-
-</div>
-
-<!-- Swap Details -->
-
-<div class="section">
-
 <h3>Swap Agreement</h3>
 
-<div class="form-grid full-width">
 <label>Reason for Room Swap</label>
-<textarea id="reason" rows="3" placeholder="Please provide a reason for the room swap request"></textarea>
+<textarea name="reason" required></textarea>
 
 <div class="checkbox-container">
-<input type="checkbox" id="agreement" required>
-<label for="agreement">Both students confirm they agree to swap rooms with each other.</label>
-</div>
-</div>
-
+<input type="checkbox" required>
+<label>Both students agree to swap rooms</label>
 </div>
 
-<button type="submit">Submit Room Swap Request</button>
+</div>
+
+<button type="submit" name="submit">Submit Room Swap Request</button>
 
 </form>
 
@@ -239,44 +225,6 @@ Student 1 will receive Student 2's room, and Student 2 will receive Student 1's 
 
 </div>
 
-<script>
-
-document.getElementById("swapForm").addEventListener("submit",function(e){
-
-e.preventDefault();
-
-let swapRequest = {
-
-student1:{
-name:document.getElementById("name1").value,
-hostelID:document.getElementById("hostelID1").value,
-room:document.getElementById("room1").value
-},
-
-student2:{
-name:document.getElementById("name2").value,
-hostelID:document.getElementById("hostelID2").value,
-room:document.getElementById("room2").value
-},
-
-reason:document.getElementById("reason").value,
-status:"Pending"
-
-};
-
-let swaps = JSON.parse(localStorage.getItem("swapRequests")) || [];
-
-swaps.push(swapRequest);
-
-localStorage.setItem("swapRequests",JSON.stringify(swaps));
-
-alert("Room Swap Request Submitted to Warden!");
-
-this.reset();
-
-});
-
-</script>
 
 </body>
 </html>

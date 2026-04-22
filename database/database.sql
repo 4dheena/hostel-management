@@ -174,6 +174,19 @@ UPDATE guest_requests
 SET status='Approved by Inmates'
 WHERE request_id=1;
 
+CREATE TABLE vacating_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_name VARCHAR(100),
+    hostel_id VARCHAR(20),
+    room_number VARCHAR(20),
+    contact_number VARCHAR(15),
+    course_sem VARCHAR(50),
+    vacating_date DATE,
+    reason TEXT,
+    status VARCHAR(20) DEFAULT 'Pending',
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+=======
 CREATE TABLE IF NOT EXISTS mess_attendance (
   attendance_id INT PRIMARY KEY AUTO_INCREMENT,
   student_id VARCHAR(50) NOT NULL,
@@ -182,6 +195,7 @@ CREATE TABLE IF NOT EXISTS mess_attendance (
   UNIQUE KEY unique_student_date (student_id, attendance_date)
 );
 
+<<<<<<< HEAD
 CREATE TABLE mess_cuts (
   mess_cut_id INT PRIMARY KEY AUTO_INCREMENT,
   student_id VARCHAR(50) NOT NULL,
@@ -206,4 +220,14 @@ CREATE TABLE bills (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (student_id) REFERENCES students(student_id),
   UNIQUE KEY unique_student_month_year (student_id, month, year)
+=======
+CREATE TABLE room_swap_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_name VARCHAR(100),
+    current_room VARCHAR(20),
+    requested_room VARCHAR(20),
+    reason TEXT,
+    status VARCHAR(20) DEFAULT 'Pending',
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+>>>>>>> 8d360b3472fcd18c9d1670e8761d5f0cba74fe48
 );

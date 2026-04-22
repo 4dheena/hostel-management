@@ -1,3 +1,28 @@
+<?php
+include("../database/db_connect.php");
+
+if(isset($_POST['submit'])) {
+
+    $name = $_POST['student_name'];
+    $hostel_id = $_POST['hostel_id'];
+    $room = $_POST['room_number'];
+    $contact = $_POST['contact_number'];
+    $course = $_POST['course_sem'];
+    $date = $_POST['vacating_date'];
+    $reason = $_POST['reason'];
+
+    $sql = "INSERT INTO vacating_requests 
+    (student_name, hostel_id, room_number, contact_number, course_sem, vacating_date, reason) 
+    VALUES 
+    ('$name','$hostel_id','$room','$contact','$course','$date','$reason')";
+
+    if(mysqli_query($conn, $sql)) {
+        echo "<script>alert('Vacating request submitted');</script>";
+    } else {
+        echo "Error: " . mysqli_error($conn);
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -140,49 +165,50 @@ button:hover {
 
 <h2>Hostel Vacating Form</h2>
 
-<form id="vacateForm" class="form-grid">
+
+<form method="POST" action="" class="form-grid">
 
 <div>
 <label>Student Name</label>
-<input type="text" id="name" required>
+<input type="text" name="student_name" required>
 </div>
 
 <div>
 <label>Hostel ID</label>
-<input type="text" id="hostelID" required>
+<input type="text" name="hostel_id" required>
 </div>
 
 <div>
 <label>Room Number</label>
-<input type="text" id="room" required>
+<input type="text" name="room_number" required>
 </div>
 
 <div>
 <label>Contact Number</label>
-<input type="tel" id="phone" required>
+<input type="tel" name="contact_number" required>
 </div>
 
 <div>
 <label>Course / Semester</label>
-<input type="text" id="course" placeholder="Example: B.Tech S4">
+<input type="text" name="course_sem" placeholder="Example: B.Tech S4">
 </div>
 
 <div>
 <label>Date of Vacating</label>
-<input type="date" id="vacateDate" required>
+<input type="date" name="vacating_date" required>
 </div>
 
 <div class="form-grid full-width">
 <label>Reason for Vacating</label>
-<textarea id="reason" rows="3" placeholder="End of semester / Course completion"></textarea>
+<textarea name="reason" rows="3" placeholder="End of semester / Course completion"></textarea>
 </div>
 
 <div class="checkbox-container">
-<input type="checkbox" id="declaration" required>
-<label for="declaration">I confirm that I have cleared all hostel dues and returned hostel property.</label>
+<input type="checkbox" required>
+<label>I confirm that I have cleared all hostel dues and returned hostel property.</label>
 </div>
 
-<button type="submit">Submit Vacating Request</button>
+<button type="submit" name="submit">Submit Vacating Request</button>
 
 </form>
 
@@ -190,38 +216,6 @@ button:hover {
 
 </div>
 
-<script>
-
-document.getElementById("vacateForm").addEventListener("submit", function(e){
-
-e.preventDefault();
-
-let vacateRequest = {
-
-name: document.getElementById("name").value,
-hostelID: document.getElementById("hostelID").value,
-room: document.getElementById("room").value,
-phone: document.getElementById("phone").value,
-course: document.getElementById("course").value,
-vacateDate: document.getElementById("vacateDate").value,
-reason: document.getElementById("reason").value,
-status: "Pending"
-
-};
-
-let vacateData = JSON.parse(localStorage.getItem("vacateRequests")) || [];
-
-vacateData.push(vacateRequest);
-
-localStorage.setItem("vacateRequests", JSON.stringify(vacateData));
-
-alert("Vacating Request Submitted Successfully!");
-
-this.reset();
-
-});
-
-</script>
 
 </body>
 </html>
