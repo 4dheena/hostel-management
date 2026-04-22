@@ -297,9 +297,14 @@ body {
 <div class="sidebar">
 <h2>ARUVI</h2>
 <a href="dashboard.php">Dashboard</a>
-<a href="gbm.php" class="active">GBM</a>
+<a href="attendance.php">Attendance</a>
+<a href="mess.php">Mess</a>
+<a href="gbm.php">Community Chat</a>
+<a href="complaints.php">Complaints</a>
+<a href="fees.php">Fees</a>
+<a href="feedback.php">Feedback</a>
+<a href="services.php">Services</a>
 <a href="notifications.php">Notifications</a>
-<a href="edit_profile.php">Edit Profile</a>
 <a href="../auth/logout.php">Logout</a>
 </div>
 
@@ -309,8 +314,8 @@ body {
 <!-- Header -->
 <div class="gbm-header">
   <div>
-    <h1>🎤 GBM Live Discussion</h1>
-    <p style="font-size: 14px; color: #666; margin-top: 5px;"><?= htmlspecialchars($hostel_name) ?> Hostel</p>
+    <h1>🎤 Community Chat</h1>
+    <p style="font-size: 14px; color: #666; margin-top: 5px;"><?= htmlspecialchars($hostel_name) ?></p>
   </div>
   <div class="info">
     <div class="active-count" id="activeUsers">

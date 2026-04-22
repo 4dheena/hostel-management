@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Hostel Mess Management</title>
-<link rel="stylesheet" href="assets/css/mess.css">
+<link rel="stylesheet" href="../assets/css/mess.css">
 </head>
 
 <body>
