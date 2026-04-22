@@ -194,3 +194,12 @@ CREATE TABLE IF NOT EXISTS mess_attendance (
   UNIQUE KEY unique_student_date (student_id, attendance_date)
 );
 
+CREATE TABLE room_swap_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_name VARCHAR(100),
+    current_room VARCHAR(20),
+    requested_room VARCHAR(20),
+    reason TEXT,
+    status VARCHAR(20) DEFAULT 'Pending',
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
