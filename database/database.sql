@@ -172,3 +172,17 @@ WHERE request_id=1 AND approval_status='Pending';
 UPDATE guest_requests
 SET status='Approved by Inmates'
 WHERE request_id=1;
+
+
+CREATE TABLE vacating_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_name VARCHAR(100),
+    hostel_id VARCHAR(20),
+    room_number VARCHAR(20),
+    contact_number VARCHAR(15),
+    course_sem VARCHAR(50),
+    vacating_date DATE,
+    reason TEXT,
+    status VARCHAR(20) DEFAULT 'Pending',
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
