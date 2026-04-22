@@ -172,3 +172,11 @@ WHERE request_id=1 AND approval_status='Pending';
 UPDATE guest_requests
 SET status='Approved by Inmates'
 WHERE request_id=1;
+
+CREATE TABLE IF NOT EXISTS mess_attendance (
+  attendance_id INT PRIMARY KEY AUTO_INCREMENT,
+  student_id VARCHAR(50) NOT NULL,
+  attendance_date DATE NOT NULL,
+  recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_student_date (student_id, attendance_date)
+);
