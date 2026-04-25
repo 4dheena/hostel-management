@@ -1,54 +1,22 @@
 <?php
 session_start();
-require_once "../database/db_connect.php";
-
-/* check login */
-if (!isset($_SESSION['user_id'])) {
-header("Location: ../index.php");
-exit();
-}
+require_once '../database/db_connect.php';
 
 $user_id = $_SESSION['user_id'];
+
+/* FETCH NOTIFICATIONS */
 $stmt = $conn->prepare("
-SELECT student_id
-FROM students
+SELECT * FROM notifications 
 WHERE user_id = ?
-");
-
-$stmt->bind_param("i",$user_id);
-$stmt->execute();
-
-$res = $stmt->get_result();
-$student = $res->fetch_assoc();
-
-$student_id = $student['student_id'];
-
-/* fetch notifications */
-
-$query = $conn->prepare("
-SELECT 
-MAX(id) AS id,
-MAX(title) AS title,
-MAX(message) AS message,
-type,
-reference_id,
-MAX(created_at) AS created_at,
-MAX(is_read) AS is_read
-FROM notifications
-WHERE user_id = ?
-GROUP BY reference_id, type
 ORDER BY created_at DESC
 ");
-
-$query->bind_param("i",$user_id);
-$query->execute();
-$notifications = $query->get_result();
-
+$stmt->bind_param("i",$user_id);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
 <html>
-
 <head>
 
 <title>Notifications</title>
@@ -61,51 +29,30 @@ background:#f4f6f9;
 padding:40px;
 }
 
-h2{
-margin-bottom:30px;
-}
-
 .notification-card{
 background:white;
-border:1px solid #ddd;
-padding:20px;
+padding:15px;
 margin-bottom:15px;
 border-radius:8px;
-box-shadow:0 2px 5px rgba(0,0,0,0.05);
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-.unread{
-border-left:5px solid #007bff;
-}
-
-.notification-title{
-font-weight:bold;
-margin-bottom:5px;
-}
-
-.notification-time{
-font-size:12px;
-color:gray;
-margin-top:6px;
+button{
+padding:8px 14px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+margin-top:10px;
 }
 
 .review-btn{
-margin-top:10px;
-padding:6px 12px;
 background:#007bff;
 color:white;
-border:none;
-border-radius:4px;
-cursor:pointer;
 }
 
 .reviewed{
-margin-top:10px;
-padding:6px 12px;
 background:#6c757d;
 color:white;
-border:none;
-border-radius:4px;
 cursor:not-allowed;
 }
 
@@ -124,7 +71,7 @@ background:rgba(0,0,0,0.5);
 .modal-content{
 background:white;
 padding:20px;
-width:420px;
+width:400px;
 margin:10% auto;
 border-radius:8px;
 position:relative;
@@ -134,25 +81,23 @@ position:relative;
 position:absolute;
 top:10px;
 right:15px;
-font-size:22px;
+font-size:24px;
 cursor:pointer;
+font-weight:bold;
+}
+
+.close-btn:hover{
+color:red;
 }
 
 .approve{
 background:#28a745;
 color:white;
-border:none;
-padding:8px 14px;
-margin-right:10px;
-border-radius:4px;
 }
 
 .reject{
 background:#dc3545;
 color:white;
-border:none;
-padding:8px 14px;
-border-radius:4px;
 }
 
 </style>
@@ -163,82 +108,61 @@ border-radius:4px;
 
 <h2>Notifications</h2>
 
-<?php if($notifications->num_rows == 0): ?>
-
-<p>No notifications available.</p>
-
+<?php if($result->num_rows == 0): ?>
+<p>No notifications.</p>
 <?php endif; ?>
 
+<?php while($row = $result->fetch_assoc()): ?>
 
-<?php while($row = $notifications->fetch_assoc()): ?>
+<div class="notification-card">
 
-<div class="notification-card <?= $row['is_read'] == 0 ? 'unread' : '' ?>">
+<h4><?= htmlspecialchars($row['title']); ?></h4>
+<p><?= htmlspecialchars($row['message']); ?></p>
 
-<div class="notification-title">
-<?= htmlspecialchars($row['title']) ?>
-</div>
-
-<div style="white-space:pre-wrap;word-break:break-word;">
-<?= htmlspecialchars($row['message']) ?>
-</div>
-
+<!-- 🔹 GUEST -->
 <?php if($row['type'] == 'guest_request'): ?>
 
-<?php
-
-/* check approval status */
-
-$stmt2 = $conn->prepare("
-SELECT approval_status
-FROM guest_roommate_approvals
-WHERE request_id = ?
-AND student_id = ?
-");
-
-$stmt2->bind_param("ii",$row['reference_id'],$student_id);
-$stmt2->execute();
-
-$res2 = $stmt2->get_result();
-$status = $res2->fetch_assoc();
-
-if($status && $status['approval_status'] != 'pending'){
-?>
-
-<button class="reviewed" disabled>
-Reviewed
-</button>
-
-<?php } else { ?>
-
-<button 
+<button
 class="review-btn"
-onclick="openGuestModal(<?= $row['reference_id']?>,this)">
+data-request="<?= $row['reference_id']; ?>"
+onclick="openGuestModal(<?= $row['reference_id']; ?>, this)">
 Review
 </button>
 
-<?php } ?>
+<?php endif; ?>
+
+<!-- 🔹 ROOM SWAP -->
+<?php if($row['type'] == 'room_swap'): ?>
+
+<button
+class="review-btn"
+onclick="openSwapModal(<?= $row['reference_id']; ?>, this)">
+Inspect
+</button>
 
 <?php endif; ?>
 
-<div class="notification-time">
-<?= date("d M Y H:i",strtotime($row['created_at'])) ?>
-</div>
+<!-- 🔹 VACATE -->
+<?php if($row['type'] == 'vacate_request'): ?>
+
+<button
+class="review-btn"
+onclick="openVacateModal(<?= $row['reference_id']; ?>, this)">
+Confirm
+</button>
+
+<?php endif; ?>
 
 </div>
 
 <?php endwhile; ?>
 
-
-<!-- MODAL -->
-
+<!-- ================= GUEST MODAL ================= -->
 <div id="guestModal" class="modal">
-
 <div class="modal-content">
-
-<span class="close-btn" onclick="closeModal()">&times;</span>
+<span class="close-btn" onclick="closeGuestModal()">&times;</span>
 
 <h3>Guest Request Details</h3>
-
 <div id="guestDetails"></div>
 
 <br>
@@ -247,11 +171,89 @@ Review
 <button onclick="rejectGuest()" class="reject">Reject</button>
 
 </div>
-
 </div>
 
+<!-- ================= SWAP MODAL ================= -->
+<div id="swapModal" class="modal">
+<div class="modal-content">
+<span class="close-btn" onclick="closeSwapModal()">&times;</span>
+
+<h3>Room Swap Request</h3>
+<div id="swapDetails"></div>
+
+<br>
+
+<button onclick="acceptSwap()" class="approve">Accept</button>
+<button onclick="rejectSwap()" class="reject">Reject</button>
+
+</div>
+</div>
+
+<!-- ================= VACATE MODAL ================= -->
+<div id="vacateModal" class="modal">
+<div class="modal-content">
+
+<span class="close-btn" onclick="closeVacateModal()">&times;</span>
+
+<h3>Vacate Request Confirmation</h3>
+
+<p>Did you submit this vacate request?</p>
+
+<br>
+
+<button onclick="confirmVacate()" class="approve">Yes</button>
+<button onclick="rejectVacate()" class="reject">No</button>
+
+</div>
+</div>
 
 <script>
+
+/* ================= VACATE ================= */
+
+let currentVacate = null;
+let currentVacateBtn = null;
+
+function openVacateModal(id, btn){
+currentVacate = id;
+currentVacateBtn = btn;
+document.getElementById("vacateModal").style.display = "block";
+}
+
+function closeVacateModal(){
+document.getElementById("vacateModal").style.display="none";
+}
+
+function confirmVacate(){
+processVacate("confirm");
+}
+
+function rejectVacate(){
+processVacate("reject");
+}
+
+function processVacate(action){
+
+fetch("../vacate/respond_vacate.php",{
+method:"POST",
+headers:{'Content-Type':'application/x-www-form-urlencoded'},
+body:`request_id=${currentVacate}&action=${action}`
+})
+.then(res => res.text())
+.then(() => {
+
+if(currentVacateBtn){
+currentVacateBtn.textContent = "Reviewed";
+currentVacateBtn.classList.remove("review-btn");
+currentVacateBtn.classList.add("reviewed");
+currentVacateBtn.disabled = true;
+}
+
+closeVacateModal();
+
+});
+
+}
 
 let currentRequest = null;
 let currentButton = null;
@@ -325,6 +327,76 @@ modal.style.display="none";
 }
 
 }
+
+
+let currentSwap = null;
+let currentSwapBtn = null;
+
+function openSwapModal(id, button){
+
+currentSwap = id;
+currentSwapBtn = button;
+
+fetch("../room_swap/fetch_swap.php?id=" + id)
+.then(res => res.json())
+.then(data => {
+
+document.getElementById("swapDetails").innerHTML = `
+<p><b>Student A:</b> ${data.student_a}</p>
+<p><b>Room A:</b> ${data.room_a}</p>
+<p><b>Student B:</b> ${data.student_b}</p>
+<p><b>Room B:</b> ${data.room_b}</p>
+<p><b>Reason:</b> ${data.reason}</p>
+`;
+
+document.getElementById("swapModal").style.display="block";
+
+});
+
+}
+
+function closeSwapModal(){
+document.getElementById("swapModal").style.display="none";
+}
+
+function acceptSwap(){
+processSwap("accept");
+}
+
+function rejectSwap(){
+processSwap("reject");
+}
+
+function processSwap(action){
+
+fetch("../room_swap/respond_swap.php",{
+method:"POST",
+headers:{'Content-Type':'application/x-www-form-urlencoded'},
+body:`request_id=${currentSwap}&action=${action}`
+})
+.then(res => res.text())
+.then(data => {
+
+/* Update button UI */
+if(currentSwapBtn){
+currentSwapBtn.textContent = "Reviewed";
+currentSwapBtn.classList.remove("review-btn");
+currentSwapBtn.classList.add("reviewed");
+currentSwapBtn.disabled = true;
+}
+
+/* Close modal */
+closeSwapModal();
+
+/* Optional message */
+alert("Response submitted");
+
+});
+
+}
+
+
+
 
 </script>
 

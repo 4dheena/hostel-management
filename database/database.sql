@@ -180,3 +180,23 @@ CREATE TABLE IF NOT EXISTS mess_attendance (
   recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY unique_student_date (student_id, attendance_date)
 );
+
+CREATE TABLE attendance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    
+    student_id INT NOT NULL,
+    date DATE NOT NULL,
+    
+    status ENUM('present', 'absent') DEFAULT 'present',
+    
+    reason VARCHAR(100) DEFAULT NULL,
+    vacation_days INT DEFAULT NULL,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- 🔒 Prevent duplicate entries (VERY IMPORTANT)
+    UNIQUE KEY unique_student_date (student_id, date),
+
+    -- 🔗 Foreign key (optional but recommended)
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+);

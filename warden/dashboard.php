@@ -241,7 +241,7 @@ border-radius:8px;
 
 <div class="action-buttons">
 
-<a href="guest_requests.php">Guest Approval</a>
+<a href="requests.php">Requests</a>
 
 <a href="write_announcement.php">Write Announcement</a>
 
