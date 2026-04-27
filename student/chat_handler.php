@@ -25,7 +25,7 @@ if (!$hostel_id) {
 }
 
 // Temporary file to store messages (not in database)
-$tempDir = '../uploads/gbm_temp/';
+$tempDir = '../uploads/chat_temp/';
 if (!is_dir($tempDir)) {
     mkdir($tempDir, 0755, true);
 }
@@ -114,8 +114,8 @@ if ($action === 'save') {
 
 // ================= GET ACTIVE USERS COUNT =================
 if ($action === 'active_users') {
-    // Count how many GBM temp files exist (active hostels)
-    $gbmTempDir = '../uploads/gbm_temp/';
+    // Count how many chat temp files exist (active hostels)
+    $chatTempDir = '../uploads/chat_temp/';
     $activeCount = 0;
     
     if (is_dir($gbmTempDir)) {

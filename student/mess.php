@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <title>Mess QR Code Scanner</title>
 
-<link rel="stylesheet" href="assets/css/mess.css">
+<link rel="stylesheet" href="../assets/css/mess.css">
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -29,7 +29,7 @@
 
 <div class="cards">
 
-<a href="auth/menu.html">
+<a href="../mess/menu.html">
 <div class="card">
 <div class="icon menu">🍽</div>
 <h3>Mess Menu</h3>
@@ -37,7 +37,7 @@
 </div>
 </a>
 
-<a href="auth/messcut.html">
+<a href="../mess/messcut.html">
 <div class="card">
 <div class="icon cut">🎟</div>
 <h3>Messcuts</h3>
@@ -45,7 +45,7 @@
 </div>
 </a>
 
-<a href="auth/bill.php">
+<a href="../mess/bill.php">
 <div class="card">
 <div class="icon bill">💰</div>
 <h3>Billing & Payments</h3>
@@ -53,7 +53,7 @@
 </div>
 </a>
 
-<a href="stats.html">
+<a href="../mess/stats.html">
 <div class="card">
 <div class="icon stats">📈</div>
 <h3>Statistics</h3>

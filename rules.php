@@ -10,18 +10,21 @@
 <body>
 
 <!-- NAVBAR -->
-<header class="navbar">
-    <div class="logo">ARUVI</div>
-    <nav>
-        <a href="index.php">Home</a>
-        <a href="about.php">About</a>
-        <a href="facilities.php">Facilities</a>
-        <a href="contact.php">Contact</a>
-        <a href="rules.php" class="active">Rules</a> 
-        <a href="announcement.php">Announcements</a>
-        <a href="forms.php">Forms</a>
-    </nav>
-</header>
+<!-- NAVBAR (same structure as your site) -->
+
+    <header class="navbar">
+        <div class="logo">ARUVI</div>
+        <nav>
+            <a href="index.php">Home</a>
+            <a href="about.php">About</a>
+            <a href="facilities.php">Facilities</a>
+            <a href="contact.php" >Contact</a>
+            <a href="announcement.php">Announcements</a>
+            <a href="rules.php" class="active">Rules</a>
+            <a href="forms.php">Forms</a>
+        </nav>
+    </header>
+
 
 <!-- HERO SECTION -->
 <section class="hero">
