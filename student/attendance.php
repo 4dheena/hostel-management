@@ -178,6 +178,7 @@ margin:5px 0;
 <a href="attendance.php">Attendance</a>
 <a href="mess.php">Mess</a>
 <a href="gbm.php">GBM</a>
+<a href="chat.php">Community Chat</a>
 <a href="complaints.php">Complaints</a>
 <a href="fees.php">Fees</a>
 <a href="feedback.php">Feedback</a>

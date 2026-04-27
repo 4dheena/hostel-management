@@ -224,3 +224,78 @@ body {
   font-size: 13px;
   opacity: 0.85;
 }
+
+@media (max-width: 768px) {
+
+  /* ===== NAVBAR ===== */
+  .navbar {
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 20px;
+    gap: 10px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    height: auto;
+  }
+
+  .hero-content {
+    flex-direction: column;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .hero-left {
+    max-width: 100%;
+  }
+
+  .hero-left h1 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .stats {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ===== LOGIN CARD ===== */
+  .login-card {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  /* ===== NAVY SECTION ===== */
+  .navy-section {
+    padding: 80px 20px;
+    margin-top: -100px;
+  }
+
+  /* ===== ROLE CARDS ===== */
+  .role-cards {
+    flex-direction: column;
+  }
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    text-align: center;
+  }
+
+  .nav-links li{
+    flex: 0 0 auto;
+  }
+
+}

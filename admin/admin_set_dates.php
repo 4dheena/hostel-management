@@ -54,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .card {
       background: #fff;
       padding: 30px;
-      max-width: 500px;
       border-radius: 10px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }

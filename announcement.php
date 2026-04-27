@@ -112,7 +112,7 @@ echo "<span class='new-tag'>NEW</span>";
 <?php if(!empty($row['file_path'])): ?>
 
 <a class="download-btn"
-href="uploads/ranklists/<?php echo $row['file_path']; ?>"
+href="<?php echo $row['file_path']; ?>"
 target="_blank">
 📄 Download PDF
 </a>

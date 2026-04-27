@@ -299,7 +299,7 @@ body {
 <a href="dashboard.php">Dashboard</a>
 <a href="attendance.php">Attendance</a>
 <a href="mess.php">Mess</a>
-<a href="gbm.php">Community Chat</a>
+<a href="chat.php">Community Chat</a>
 <a href="complaints.php">Complaints</a>
 <a href="fees.php">Fees</a>
 <a href="feedback.php">Feedback</a>
@@ -399,7 +399,7 @@ async function sendMessage() {
   sendBtn.textContent = 'Sending...';
 
   try {
-    const response = await fetch('gbm_handler.php', {
+    const response = await fetch('chat_handler.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `action=save&message=${encodeURIComponent(message)}`
@@ -427,7 +427,7 @@ async function sendMessage() {
 
 async function loadMessages() {
   try {
-    const response = await fetch(`gbm_handler.php?action=get&limit=100`);
+    const response = await fetch(`chat_handler.php?action=get&limit=100`);
     const data = await response.json();
 
     if (data.success) {
@@ -473,7 +473,7 @@ async function loadMessages() {
 
 async function updateActiveUsers() {
   try {
-    const response = await fetch('gbm_handler.php?action=active_users');
+    const response = await fetch('chat_handler.php?action=active_users');
     const data = await response.json();
     if (data.success) {
       activeUsersEl.textContent = data.active_users || 0;
