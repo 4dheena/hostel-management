@@ -39,7 +39,7 @@ body {
 /* HERO SECTION */
 .hero {
     height: 60vh;
-    background: url("../images/hostel.jpeg") center/cover no-repeat;
+    background: url("../assets/images/hostel.jpeg") center/cover no-repeat;
     position: relative;
 }
 

@@ -173,19 +173,6 @@ UPDATE guest_requests
 SET status='Approved by Inmates'
 WHERE request_id=1;
 
-CREATE TABLE vacating_requests (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    student_name VARCHAR(100),
-    hostel_id VARCHAR(20),
-    room_number VARCHAR(20),
-    contact_number VARCHAR(15),
-    course_sem VARCHAR(50),
-    vacating_date DATE,
-    reason TEXT,
-    status VARCHAR(20) DEFAULT 'Pending',
-    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-=======
 CREATE TABLE IF NOT EXISTS mess_attendance (
   attendance_id INT PRIMARY KEY AUTO_INCREMENT,
   student_id VARCHAR(50) NOT NULL,
@@ -194,12 +181,22 @@ CREATE TABLE IF NOT EXISTS mess_attendance (
   UNIQUE KEY unique_student_date (student_id, attendance_date)
 );
 
-CREATE TABLE room_swap_requests (
+CREATE TABLE attendance (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    student_name VARCHAR(100),
-    current_room VARCHAR(20),
-    requested_room VARCHAR(20),
-    reason TEXT,
-    status VARCHAR(20) DEFAULT 'Pending',
-    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    
+    student_id INT NOT NULL,
+    date DATE NOT NULL,
+    
+    status ENUM('present', 'absent') DEFAULT 'present',
+    
+    reason VARCHAR(100) DEFAULT NULL,
+    vacation_days INT DEFAULT NULL,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- 🔒 Prevent duplicate entries (VERY IMPORTANT)
+    UNIQUE KEY unique_student_date (student_id, date),
+
+    -- 🔗 Foreign key (optional but recommended)
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );

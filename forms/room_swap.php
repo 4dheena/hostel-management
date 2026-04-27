@@ -1,22 +1,8 @@
-<?php
-include("../database/db_connect.php");
 
-if(isset($_POST['submit'])) {
-
-    $name = $_POST['student_name'];
-    $current = $_POST['current_room'];
-    $requested = $_POST['requested_room'];
-    $reason = $_POST['reason'];
-
-    $sql = "INSERT INTO room_swap_requests 
-    (student_name, current_room, requested_room, reason) 
-    VALUES 
-    ('$name','$current','$requested','$reason')";
-
-    mysqli_query($conn, $sql);
-}
-?>
 <!DOCTYPE html>
+<?php
+$msg = $_GET['msg'] ?? '';
+?>
 <html>
 <head>
 
@@ -172,59 +158,49 @@ button:hover {
 <div class="container">
 
 <div class="card">
-
-<h2>Room Swap Request Form</h2>
-
-<p style="text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 14px;">
-Student 1 will receive Student 2's room, and Student 2 will receive Student 1's room.
-</p>
-
-<form method="POST" action="">
-
-<div class="section">
-<h3>Student 1 (Requesting Swap)</h3>
-
-<div class="form-grid">
-
-<div>
-<label>Student Name</label>
-<input type="text" name="student_name" required>
+<h2>Room Swap Request</h2>
+<?php if ($msg != ""): ?>
+<div style="background:#e6f7ff;padding:12px;margin-bottom:20px;border-radius:8px;">
+    <?php echo $msg; ?>
 </div>
+<?php endif; ?>
+<form action="../room_swap/submit_room_swap.php" method="POST">
 
-<div>
-<label>Current Room Number</label>
-<input type="text" name="current_room" required>
-</div>
+    <!-- 🔹 STUDENT A -->
+    <h3>Student A Details</h3>
 
-<div>
-<label>Requested Room Number</label>
-<input type="text" name="requested_room" required>
-</div>
+    <label>Name</label>
+    <input type="text" name="student_a_name" required>
 
-</div>
-</div>
+    <label>Student ID</label>
+    <input type="text" name="student_a_id" required>
 
-<div class="section">
-<h3>Swap Agreement</h3>
+    <label>Current Room</label>
+    <input type="text" name="room_a" required>
 
-<label>Reason for Room Swap</label>
-<textarea name="reason" required></textarea>
 
-<div class="checkbox-container">
-<input type="checkbox" required>
-<label>Both students agree to swap rooms</label>
-</div>
+    <!-- 🔹 STUDENT B -->
+    <h3>Student B Details</h3>
 
-</div>
+    <label>Name</label>
+    <input type="text" name="student_b_name" required>
 
-<button type="submit" name="submit">Submit Room Swap Request</button>
+    <label>Student ID</label>
+    <input type="text" name="student_b_id" required>
+
+    <label>Current Room</label>
+    <input type="text" name="room_b" required>
+
+
+    <!-- 🔹 REASON -->
+    <h3>Reason for Swap</h3>
+    <textarea name="reason" required></textarea>
+
+
+    <!-- 🔹 SUBMIT -->
+    <button type="submit">Submit Room Swap</button>
 
 </form>
-
-</div>
-
-</div>
-
 
 </body>
 </html>

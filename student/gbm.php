@@ -1,509 +1,314 @@
 <?php
 session_start();
-date_default_timezone_set('Asia/Kolkata');
-require_once "../database/db_connect.php";
-
-/* check login */
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../index.php");
-    exit();
-}
+include '../database/db_connect.php';
 
 $user_id = $_SESSION['user_id'];
 
-/* Get student's hostel name */
-$stmt = $conn->prepare("SELECT h.hostel_name, s.hostel_id FROM students s 
-                        JOIN hostels h ON s.hostel_id = h.hostel_id
-                        WHERE s.user_id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result()->fetch_assoc();
-$hostel_name = $result['hostel_name'] ?? 'Hostel';
-$hostel_id = $result['hostel_id'] ?? null;
+$student = mysqli_fetch_assoc(mysqli_query($conn,"
+SELECT student_id, hostel_id FROM students WHERE user_id='$user_id'
+"));
 
-if (!$hostel_id) {
-    die("Hostel information not found");
+$student_id = $student['student_id'];
+$hostel_id = $student['hostel_id'];
+
+/* ACTIVE POLL */
+$poll = mysqli_fetch_assoc(mysqli_query($conn,"
+SELECT * FROM gbm_polls 
+WHERE hostel_id='$hostel_id' 
+AND status='active'
+ORDER BY id DESC LIMIT 1
+"));
+
+/* CHECK VOTED */
+$already = 0;
+if($poll){
+    $already = mysqli_num_rows(mysqli_query($conn,"
+    SELECT * FROM gbm_votes 
+    WHERE poll_id='{$poll['id']}' 
+    AND student_id='$student_id'
+    "));
 }
+
+/* SUGGESTIONS */
+$suggestions = mysqli_query($conn,"
+SELECT * FROM gbm_suggestions 
+WHERE hostel_id='$hostel_id'
+ORDER BY id DESC
+");
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GBM - Live Discussion</title>
+<title>GBM</title>
 
 <style>
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+body{
+font-family:"Segoe UI", sans-serif;
+background:#f4f6f9;
+padding:25px;
 }
 
-body {
-  background: #f4f7fb;
+/* GRID */
+.main{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:25px;
+max-width:1200px;
+margin:auto;
 }
 
-/* Layout */
-.dashboard {
-  display: flex;
-  min-height: 100vh;
+.left{
+display:flex;
+flex-direction:column;
+gap:20px;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 240px;
-  background: linear-gradient(180deg, #0f2027, #203a43, #2c5364);
-  color: white;
-  padding: 25px;
-  overflow-y: auto;
+.section{
+background:white;
+padding:20px;
+border-radius:14px;
+box-shadow:0 6px 20px rgba(0,0,0,0.08);
 }
 
-.sidebar h2 {
-  text-align: center;
-  margin-bottom: 35px;
+input, textarea{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:8px;
+border:1px solid #ddd;
 }
 
-.sidebar a {
-  display: block;
-  color: white;
-  text-decoration: none;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 6px;
+/* BUTTONS */
+button{
+padding:10px 14px;
+border:none;
+border-radius:20px;
+cursor:pointer;
+margin-top:10px;
 }
 
-.sidebar a:hover {
-  background: rgba(255, 255, 255, 0.15);
+.vote-btn{ background:#3b82f6; color:white; }
+.submit-btn{ background:#22c55e; color:white; }
+
+.disabled{
+background:gray;
+cursor:not-allowed;
 }
 
-.sidebar a.active {
-  background: rgba(255, 255, 255, 0.25);
-  border-left: 4px solid #00d2d3;
+/* OPTION */
+.option{
+margin:10px 0;
+padding:10px;
+border-radius:8px;
+background:#f9fafc;
+border:1px solid #ddd;
 }
 
-/* Content */
-.content {
-  flex: 1;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
+/* PROGRESS */
+.bar-container{
+margin-top:6px;
+background:#e5e7eb;
+border-radius:20px;
+height:10px;
+overflow:hidden;
 }
 
-/* Header */
-.gbm-header {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.bar{
+height:100%;
+background:#3b82f6;
 }
 
-.gbm-header h1 {
-  font-size: 28px;
-  color: #1e293b;
+/* CARD */
+.card{
+position:relative;
+margin-top:15px;
+padding:15px;
+border-radius:10px;
+background:#f9fafc;
 }
 
-.gbm-header .info {
-  text-align: right;
+/* DELETE BUTTON */
+.delete-btn{
+position:absolute;
+top:10px;
+right:10px;
+background:#ef4444;
+color:white;
+border:none;
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
+cursor:pointer;
 }
 
-.gbm-header .info p {
-  color: #666;
-  margin: 4px 0;
+.delete-btn:hover{
+background:#dc2626;
 }
 
-.active-count {
-  background: #10b981;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
+/* REACTIONS */
+.reactions{
+margin-top:8px;
+display:flex;
+gap:10px;
 }
 
-/* Chat Container */
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+.up{
+background:#dcfce7;
+color:#16a34a;
+padding:4px 10px;
+border-radius:20px;
 }
 
-/* Messages Area */
-.messages-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 25px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.down{
+background:#fee2e2;
+color:#dc2626;
+padding:4px 10px;
+border-radius:20px;
 }
 
-.message-bubble {
-  background: #f1f5f9;
-  padding: 14px 18px;
-  border-radius: 12px;
-  border-left: 4px solid #1aa6a6;
-  word-wrap: break-word;
-  animation: slideIn 0.3s ease-in-out;
+/* RESPONSIVE */
+@media(max-width:900px){
+.main{grid-template-columns:1fr;}
 }
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.message-bubble.own {
-  background: #e0f2fe;
-  border-left-color: #1e5aa8;
-  align-self: flex-start;
-}
-
-.message-time {
-  font-size: 12px;
-  color: #999;
-  margin-top: 6px;
-}
-
-.message-date {
-  text-align: center;
-  color: #aaa;
-  font-size: 12px;
-  margin: 10px 0;
-  padding: 5px 0;
-}
-
-.empty-messages {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #999;
-  text-align: center;
-}
-
-.empty-messages div {
-  font-size: 14px;
-}
-
-/* Loading Indicator */
-.loading {
-  text-align: center;
-  padding: 10px;
-  color: #999;
-  font-size: 13px;
-}
-
-/* Input Area */
-.input-area {
-  padding: 20px 25px;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
-}
-
-.input-wrapper {
-  display: flex;
-  gap: 12px;
-}
-
-#messageInput {
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  resize: none;
-  max-height: 100px;
-}
-
-#messageInput:focus {
-  outline: none;
-  border-color: #1aa6a6;
-  box-shadow: 0 0 0 2px rgba(26, 166, 166, 0.2);
-}
-
-.send-btn {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #1e5aa8, #3b82f6);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  white-space: nowrap;
-}
-
-.send-btn:hover {
-  background: linear-gradient(135deg, #1a4a8a, #2563eb);
-  transform: translateY(-2px);
-}
-
-.send-btn:active {
-  transform: translateY(0);
-}
-
-.send-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .dashboard {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    display: flex;
-  }
-
-  .gbm-header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-  }
-
-  .gbm-header .info {
-    text-align: center;
-  }
-}
-
 </style>
 
 </head>
+
 <body>
 
-<div class="dashboard">
+<div class="main">
 
-<!-- Sidebar -->
-<div class="sidebar">
-<h2>ARUVI</h2>
-<a href="dashboard.php">Dashboard</a>
-<a href="attendance.php">Attendance</a>
-<a href="mess.php">Mess</a>
-<a href="gbm.php">Community Chat</a>
-<a href="complaints.php">Complaints</a>
-<a href="fees.php">Fees</a>
-<a href="feedback.php">Feedback</a>
-<a href="services.php">Services</a>
-<a href="notifications.php">Notifications</a>
-<a href="../auth/logout.php">Logout</a>
+<!-- LEFT SIDE -->
+<div class="left">
+
+<div class="section">
+<h3>📊 Active Poll</h3>
+
+<?php if(!$poll): ?>
+
+<p>No active poll available.</p>
+
+<?php else: ?>
+
+<h4><?= $poll['question']; ?></h4>
+
+<form action="gbm_action.php" method="POST">
+<input type="hidden" name="action" value="vote">
+<input type="hidden" name="poll_id" value="<?= $poll['id']; ?>">
+
+<?php
+$options = mysqli_query($conn,"
+SELECT o.id, o.option_text, COUNT(v.id) AS votes
+FROM gbm_poll_options o
+LEFT JOIN gbm_votes v ON o.id = v.option_id
+WHERE o.poll_id='{$poll['id']}'
+GROUP BY o.id
+");
+
+$total = 0;
+$data = [];
+
+while($row = mysqli_fetch_assoc($options)){
+$total += $row['votes'];
+$data[] = $row;
+}
+?>
+
+<?php foreach($data as $opt):
+$percent = ($total>0)?round(($opt['votes']/$total)*100):0;
+?>
+
+<div class="option">
+<label>
+<input type="radio" name="option_id" value="<?= $opt['id']; ?>" required>
+<?= $opt['option_text']; ?> (<?= $percent ?>%)
+</label>
+
+<div class="bar-container">
+<div class="bar" style="width:<?= $percent ?>%"></div>
+</div>
 </div>
 
-<!-- Content -->
-<div class="content">
+<?php endforeach; ?>
 
-<!-- Header -->
-<div class="gbm-header">
-  <div>
-    <h1>🎤 Community Chat</h1>
-    <p style="font-size: 14px; color: #666; margin-top: 5px;"><?= htmlspecialchars($hostel_name) ?></p>
-  </div>
-  <div class="info">
-    <div class="active-count" id="activeUsers">
-      <span id="userCount">0</span> Active
-    </div>
-  </div>
-</div>
+<?php if($already): ?>
+<button class="vote-btn disabled" disabled>Already Voted</button>
+<?php else: ?>
+<button type="submit" class="vote-btn">Vote</button>
+<?php endif; ?>
 
-<!-- Chat Container -->
-<div class="chat-container">
+</form>
 
-  <!-- Messages Area -->
-  <div class="messages-area" id="messagesArea">
-    <div class="empty-messages">
-      <div>
-        <p>💬 No messages yet</p>
-        <p style="font-size: 12px; margin-top: 5px;">Be the first to start the discussion!</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Input Area -->
-  <div class="input-area">
-    <div class="input-wrapper">
-      <textarea 
-        id="messageInput" 
-        placeholder="Type your anonymous message here... (Max 500 characters)"
-        rows="1"
-        maxlength="500">
-      </textarea>
-      <button class="send-btn" id="sendBtn">Send</button>
-    </div>
-    <div style="font-size: 12px; color: #999; margin-top: 8px;">
-      <span id="charCount">0</span>/500 characters
-    </div>
-  </div>
+<?php endif; ?>
 
 </div>
 
 </div>
 
+<!-- RIGHT SIDE -->
+<div class="section">
+
+<h3>💡 Suggestions</h3>
+
+<form action="gbm_action.php" method="POST">
+<input type="hidden" name="action" value="suggest">
+
+<input type="text" name="title" placeholder="Title" required>
+<textarea name="description" placeholder="Your suggestion..." required></textarea>
+
+<button type="submit" class="submit-btn">Submit</button>
+</form>
+
+<hr>
+
+<?php while($row = mysqli_fetch_assoc($suggestions)): ?>
+
+<?php
+$up = mysqli_num_rows(mysqli_query($conn,"
+SELECT * FROM gbm_reactions WHERE suggestion_id='{$row['id']}' AND reaction='up'
+"));
+
+$down = mysqli_num_rows(mysqli_query($conn,"
+SELECT * FROM gbm_reactions WHERE suggestion_id='{$row['id']}' AND reaction='down'
+"));
+?>
+
+<div class="card">
+
+<!-- DELETE BUTTON (ONLY OWNER) -->
+<?php if($row['student_id'] == $student_id): ?>
+<form action="gbm_action.php" method="POST">
+<input type="hidden" name="action" value="delete_suggestion">
+<input type="hidden" name="suggestion_id" value="<?= $row['id']; ?>">
+
+<button class="delete-btn" onclick="return confirm('Delete this suggestion?')">
+✖
+</button>
+</form>
+<?php endif; ?>
+
+<h4><?= htmlspecialchars($row['title']); ?></h4>
+<p><?= htmlspecialchars($row['description']); ?></p>
+
+<form action="gbm_action.php" method="POST">
+<input type="hidden" name="action" value="react">
+<input type="hidden" name="suggestion_id" value="<?= $row['id']; ?>">
+
+<div class="reactions">
+<button name="reaction" value="up" class="up">👍 <?= $up ?></button>
+<button name="reaction" value="down" class="down">👎 <?= $down ?></button>
 </div>
 
-<script>
+</form>
 
-const messagesArea = document.getElementById('messagesArea');
-const messageInput = document.getElementById('messageInput');
-const sendBtn = document.getElementById('sendBtn');
-const charCount = document.getElementById('charCount');
-const activeUsersEl = document.getElementById('userCount');
+</div>
 
-let lastMessageTime = {};
-let loadedMessageIds = new Set();
-let lastloadTime = 0;
+<?php endwhile; ?>
 
-// Auto-resize textarea
-messageInput.addEventListener('input', function() {
-  this.style.height = '40px';
-  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-  charCount.textContent = this.value.length;
-});
+</div>
 
-// Send message
-sendBtn.addEventListener('click', sendMessage);
-messageInput.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-});
-
-async function sendMessage() {
-  const message = messageInput.value.trim();
-  
-  if (!message) {
-    alert('Please enter a message');
-    return;
-  }
-
-  sendBtn.disabled = true;
-  sendBtn.textContent = 'Sending...';
-
-  try {
-    const response = await fetch('gbm_handler.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `action=save&message=${encodeURIComponent(message)}`
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      messageInput.value = '';
-      charCount.textContent = '0';
-      messageInput.style.height = '40px';
-      await loadMessages();
-      scrollToBottom();
-    } else {
-      alert(data.error || 'Failed to send message');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('Error sending message');
-  } finally {
-    sendBtn.disabled = false;
-    sendBtn.textContent = 'Send';
-  }
-}
-
-async function loadMessages() {
-  try {
-    const response = await fetch(`gbm_handler.php?action=get&limit=100`);
-    const data = await response.json();
-
-    if (data.success) {
-      let currentDate = '';
-      messagesArea.innerHTML = '';
-
-      if (data.messages.length === 0) {
-        messagesArea.innerHTML = `
-          <div class="empty-messages">
-            <div>
-              <p>💬 No messages yet</p>
-              <p style="font-size: 12px; margin-top: 5px;">Be the first to start the discussion!</p>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      data.messages.forEach(msg => {
-        if (msg.date !== currentDate) {
-          currentDate = msg.date;
-          const dateEl = document.createElement('div');
-          dateEl.className = 'message-date';
-          dateEl.textContent = currentDate;
-          messagesArea.appendChild(dateEl);
-        }
-
-        const bubble = document.createElement('div');
-        bubble.className = 'message-bubble';
-        bubble.innerHTML = `
-          ${escapeHtml(msg.message)}
-          <div class="message-time">${msg.time}</div>
-        `;
-        messagesArea.appendChild(bubble);
-      });
-
-      scrollToBottom();
-    }
-  } catch (error) {
-    console.error('Error loading messages:', error);
-  }
-}
-
-async function updateActiveUsers() {
-  try {
-    const response = await fetch('gbm_handler.php?action=active_users');
-    const data = await response.json();
-    if (data.success) {
-      activeUsersEl.textContent = data.active_users || 0;
-    }
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
-
-function scrollToBottom() {
-  messagesArea.scrollTop = messagesArea.scrollHeight;
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-// Load initial messages
-loadMessages();
-updateActiveUsers();
-
-// Poll for new messages every 2 seconds
-setInterval(loadMessages, 2000);
-
-// Update active users every 5 seconds
-setInterval(updateActiveUsers, 5000);
-
-</script>
+</div>
 
 </body>
 </html>
