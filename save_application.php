@@ -1,20 +1,23 @@
 <?php
 require_once 'database/db_connect.php';
-
+ob_start();
 date_default_timezone_set('Asia/Kolkata');
 
-// Check if user is logged in (optional - depends on your auth system)
-// You might want to add authentication checks here
+/* ================= ACTION ================= */
 
-// Get form action
 $action = $_POST['action'] ?? '';
 
-// Validate action
-if (!in_array($action, ['save', 'submit'])) {
-    die("Invalid action");
+// ✅ Only allow submit & update
+if (!in_array($action, ['submit', 'update'])) {
+    echo "<script>
+alert('Invalid action');
+window.history.back();
+</script>";
+exit();
 }
 
-// Get application settings
+/* ================= SETTINGS ================= */
+
 $settingsQuery = $conn->query("
     SELECT start_date, end_date, edit_start, edit_end
     FROM application_settings
@@ -36,46 +39,106 @@ $editWindowOpen = (
     $now <= $settings['edit_end']
 );
 
-// Get student email to identify application
+/* ================= IDENTIFY ================= */
+
 $personal_email = trim($_POST['personal_email'] ?? '');
 
 if (empty($personal_email)) {
-    die("Email is required");
+    echo "<script>
+alert('Email is required');
+window.history.back();
+</script>";
+exit();
 }
 
-// Check if application exists
-$existingApp = null;
+/* ================= FETCH EXISTING ================= */
+
 $stmt = $conn->prepare("SELECT * FROM hostel_applications WHERE personal_email = ?");
 $stmt->bind_param("s", $personal_email);
 $stmt->execute();
 $existingApp = $stmt->get_result()->fetch_assoc();
 
 $submitted = !empty($existingApp['submitted_at']);
-$editable = (
-    ($appWindowOpen && !$submitted) ||
-    ($editWindowOpen && $submitted)
-);
 
-if (!$editable) {
-    die("Application editing is not allowed at this time");
-}
+/* ================= STRICT FLOW CONTROL ================= */
 
-// Validate required fields for submission
-if ($action === 'submit') {
-    $required_fields = [
-        'full_name', 'register_number', 'personal_email', 'phone',
-        'gender', 'department', 'year_semester', 'dob', 'pincode',
-        'annual_income', 'pwd_status'
-    ];
+/* ================= STRICT FLOW CONTROL ================= */
 
-    foreach ($required_fields as $field) {
-        if (empty(trim($_POST[$field] ?? ''))) {
-            die("Required field missing: " . $field);
+if (!$existingApp) {
+
+    // NEW APPLICATION
+    if (!$appWindowOpen) {
+
+        echo "<script>
+        alert('Application window is closed');
+        window.location.href='index.php';
+        </script>";
+
+        exit();
+    }
+
+} else {
+
+    // EXISTING APPLICATION
+
+    if (!empty($existingApp['submitted_at'])) {
+
+        // already submitted
+
+        if ($action === 'submit') {
+
+            echo "<script>
+            alert('Application already submitted');
+            window.location.href='index.php';
+            </script>";
+
+            exit();
+        }
+
+        if ($action === 'update' && !$editWindowOpen) {
+
+            echo "<script>
+            alert('Editing allowed only during edit window');
+            window.location.href='index.php';
+            </script>";
+
+            exit();
         }
     }
 }
 
-// Handle file uploads
+
+/* ================= VALIDATION ================= */
+
+$required_fields = [
+    'full_name',
+    'register_number',
+    'personal_email',
+    'phone',
+    'gender',
+    'department',
+    'year_semester',
+    'dob',
+    'pincode',
+    'annual_income',
+    'pwd_status'
+];
+
+foreach ($required_fields as $field) {
+
+    if (empty(trim($_POST[$field] ?? ''))) {
+
+        echo "<script>
+        alert('Please fill all required fields');
+        window.history.back();
+        </script>";
+
+        exit();
+    }
+}
+
+/* ================= FILE UPLOAD ================= */
+
 $upload_dir = 'uploads/applications/';
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0755, true);
@@ -85,44 +148,55 @@ $file_fields = ['income_certificate', 'pwd_certificate', 'id_proof'];
 $uploaded_files = [];
 
 foreach ($file_fields as $field) {
+
     if (!empty($_FILES[$field]['name'])) {
-        $file_name = $_FILES[$field]['name'];
-        $file_tmp = $_FILES[$field]['tmp_name'];
-        $file_size = $_FILES[$field]['size'];
-        $file_error = $_FILES[$field]['error'];
 
-        // Validate file
-        if ($file_error !== UPLOAD_ERR_OK) {
-            die("File upload error for $field");
+        if ($_FILES[$field]['error'] !== UPLOAD_ERR_OK) {
+
+    echo "<script>
+    alert('File upload error for $field');
+    window.location.href='apply.php?email=" . urlencode($personal_email) . "';
+    </script>";
+
+    exit();
+}
+
+        if ($_FILES[$field]['size'] > 5 * 1024 * 1024) {
+           echo " <script>
+            alert('File too large for $field (max 5MB)');
+            window.location.href = 'apply.php?email=" . urlencode($personal_email) . "';
+            </script>";
+            exit();
         }
 
-        // Check file size (max 5MB)
-        if ($file_size > 5 * 1024 * 1024) {
-            die("File too large for $field (max 5MB)");
-        }
-
-        // Check file type (only PDF)
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        $file_ext = strtolower(pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION));
         if ($file_ext !== 'pdf') {
-            die("Only PDF files allowed for $field");
+            echo"<script>
+            alert('Only PDF files allowed for $field');
+            window.location.href = 'apply.php?email=" . urlencode($personal_email) . "';
+            </script>";
+            exit();
         }
 
-        // Generate unique filename
         $unique_name = uniqid() . '_' . $personal_email . '_' . $field . '.pdf';
         $file_path = $upload_dir . $unique_name;
 
-        if (!move_uploaded_file($file_tmp, $file_path)) {
-            die("Failed to save file for $field");
+        if (!move_uploaded_file($_FILES[$field]['tmp_name'], $file_path)) {
+            echo"<script>
+            alert('Failed to save file for $field');
+            window.location.href = 'apply.php?email=" . urlencode($personal_email) . "';
+            </script>";
+            exit();
         }
 
         $uploaded_files[$field] = $file_path;
     }
 }
 
-// Prepare data for database
+/* ================= DATA ================= */
 $data = [
     'full_name' => trim($_POST['full_name'] ?? ''),
-    'register_number' => trim($_POST['register_number'] ?? ''),
+    'student_id' => trim($_POST['register_number'] ?? ''),
     'personal_email' => $personal_email,
     'phone' => trim($_POST['phone'] ?? ''),
     'gender' => trim($_POST['gender'] ?? ''),
@@ -130,49 +204,65 @@ $data = [
     'year_semester' => trim($_POST['year_semester'] ?? ''),
     'dob' => trim($_POST['dob'] ?? ''),
     'pincode' => trim($_POST['pincode'] ?? ''),
-    'distance_km' => trim($_POST['distance_km'] ?? ''),
+    'distance_km' => (
+    isset($_POST['distance_km']) &&
+    is_numeric($_POST['distance_km'])
+)
+? round((float)$_POST['distance_km'], 2)
+: 0.00,
     'annual_income' => trim($_POST['annual_income'] ?? ''),
     'pwd_status' => trim($_POST['pwd_status'] ?? ''),
-    'disability_percentage' => trim($_POST['disability_percentage'] ?? ''),
+    'disability_percentage' => (
+    isset($_POST['disability_percentage']) &&
+    $_POST['disability_percentage'] !== '' &&
+    is_numeric($_POST['disability_percentage'])
+)
+? (int)$_POST['disability_percentage']
+: 0,
     'updated_at' => $now
 ];
 
-// Handle password if provided
+/* ================= PASSWORD ================= */
+
 if (!empty($_POST['new_password'])) {
+
     $password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
 
     if ($password !== $confirm_password) {
-        die("Passwords do not match");
+
+        echo "<script>
+        alert('Passwords do not match');
+        window.history.back();
+        </script>";
+
+        exit();
     }
 
-    // Validate password strength
-    if (strlen($password) < 8 ||
+    if (
+        strlen($password) < 8 ||
         !preg_match('/[A-Z]/', $password) ||
         !preg_match('/[a-z]/', $password) ||
         !preg_match('/[0-9]/', $password) ||
-        !preg_match('/[\W_]/', $password)) {
-        die("Password does not meet requirements");
+        !preg_match('/[\W_]/', $password)
+    ) {
+
+        echo "<script>
+        alert('Password does not meet security requirements');
+        window.history.back();
+        </script>";
+
+        exit();
     }
 
     $data['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
 }
 
-// Set submission timestamp for final submit
-if ($action === 'submit') {
-    $data['submitted_at'] = $now;
-}
+/* ================= INSERT / UPDATE ================= */
 
-// Handle file paths
-foreach ($file_fields as $field) {
-    if (isset($uploaded_files[$field])) {
-        $data[$field . '_path'] = $uploaded_files[$field];
-    }
-}
-
-// Insert or update application
 if ($existingApp) {
-    // Update existing application
+
+    // UPDATE
     $update_fields = [];
     $types = '';
     $values = [];
@@ -183,47 +273,55 @@ if ($existingApp) {
         $values[] = $value;
     }
 
-    $values[] = $personal_email; // WHERE clause
+    $values[] = $personal_email;
     $types .= 's';
 
     $sql = "UPDATE hostel_applications SET " . implode(', ', $update_fields) . " WHERE personal_email = ?";
     $stmt = $conn->prepare($sql);
 
-    if (!$stmt) {
-        die("Prepare failed: " . $conn->error);
-    }
-
-    $stmt->bind_param($types, ...$values);
-
 } else {
-    // Insert new application
+
+    // INSERT (first time only)
+    $data['submitted_at'] = $now;
+
     $fields = array_keys($data);
     $placeholders = str_repeat('?,', count($fields) - 1) . '?';
     $types = str_repeat('s', count($fields));
 
     $sql = "INSERT INTO hostel_applications (" . implode(',', $fields) . ") VALUES ($placeholders)";
     $stmt = $conn->prepare($sql);
-
-    if (!$stmt) {
-        die("Prepare failed: " . $conn->error);
-    }
-
-    $stmt->bind_param($types, ...array_values($data));
 }
+
+if (!$stmt) {
+
+    echo "<script>
+    alert('Database prepare failed');
+    window.history.back();
+    </script>";
+
+    exit();
+}
+
+$stmt->bind_param($types, ...array_values($data));
 
 if (!$stmt->execute()) {
-    die("Database error: " . $stmt->error);
+
+    echo "<script>
+    alert('Database error occurred');
+    window.history.back();
+    </script>";
+
+    exit();
 }
 
-// Success - redirect back to application form
-$redirect_url = "apply.php?email=" . urlencode($personal_email);
+/* SUCCESS */
 
-if ($action === 'submit') {
-    $redirect_url .= "&submitted=1";
-} else {
-    $redirect_url .= "&saved=1";
-}
+echo "
+<script>
+alert('Application submitted successfully');
+window.location.href='index.php';
+</script>
+";
 
-header("Location: $redirect_url");
 exit();
 ?>

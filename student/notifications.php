@@ -6,9 +6,12 @@ $user_id = $_SESSION['user_id'];
 
 /* FETCH NOTIFICATIONS */
 $stmt = $conn->prepare("
-SELECT * FROM notifications 
-WHERE user_id = ?
-ORDER BY created_at DESC
+SELECT notifications.*, guest_requests.inmate_status
+FROM notifications
+LEFT JOIN guest_requests
+ON notifications.reference_id = guest_requests.id
+WHERE notifications.user_id = ?
+ORDER BY notifications.created_at DESC
 ");
 $stmt->bind_param("i",$user_id);
 $stmt->execute();
@@ -120,7 +123,19 @@ color:white;
 <p><?= htmlspecialchars($row['message']); ?></p>
 
 <!-- 🔹 GUEST -->
+<!-- 🔹 GUEST -->
 <?php if($row['type'] == 'guest_request'): ?>
+
+<?php if(
+strtolower($row['inmate_status']) == 'approved' ||
+strtolower($row['inmate_status']) == 'rejected'
+): ?>
+
+<button class="reviewed" disabled>
+Reviewed
+</button>
+
+<?php else: ?>
 
 <button
 class="review-btn"
@@ -128,6 +143,8 @@ data-request="<?= $row['reference_id']; ?>"
 onclick="openGuestModal(<?= $row['reference_id']; ?>, this)">
 Review
 </button>
+
+<?php endif; ?>
 
 <?php endif; ?>
 

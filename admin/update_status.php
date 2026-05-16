@@ -83,18 +83,19 @@ foreach ($_POST['status'] as $app_id => $status) {
 
         if ($student) {
 
-            $student_id = $student['student_id'];
+    $student_id = $student['student_id'];
 
-            $resetStmt = $conn->prepare("
-                UPDATE students
-                SET hostel_id = NULL,
-                    room_id = NULL
-                WHERE student_id = ?
-            ");
+    /* REMOVE ALLOTTED STUDENT */
 
-            $resetStmt->bind_param("s", $student_id);
-            $resetStmt->execute();
-        }
+    $deleteStmt = $conn->prepare("
+        DELETE FROM students
+        WHERE student_id = ?
+    ");
+
+    $deleteStmt->bind_param("s", $student_id);
+    $deleteStmt->execute();
+
+}
     }
 
 

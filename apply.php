@@ -144,22 +144,22 @@ onkeydown="return event.key !=='Enter';">
 
       <div> 
         <label>Full Name</label> 
-        <input type="text" name="full_name" value="<?= htmlspecialchars($application['full_name'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
-      </div> 
+        <input type="text" required name="full_name" value="<?= htmlspecialchars($application['full_name'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
+      </div>
 
       <div> 
         <label>Register Number</label> 
-        <input type="text" name="register_number" value="<?= htmlspecialchars($application['register_number'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
+        <input type="text" required name="register_number" value="<?= htmlspecialchars($application['register_number'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
       </div> 
 
       <div> 
         <label>Email</label> 
-        <input type="email" name="personal_email" value="<?= htmlspecialchars($application['personal_email'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
+        <input type="email" required name="personal_email" value="<?= htmlspecialchars($application['personal_email'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
       </div> 
 
       <div> 
         <label>Phone</label> 
-        <input type="text" name="phone" value="<?= htmlspecialchars($application['phone'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
+        <input type="text" required name="phone" value="<?= htmlspecialchars($application['phone'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
       </div> 
 
       <div> 
@@ -174,22 +174,22 @@ onkeydown="return event.key !=='Enter';">
 
       <div> 
         <label>Department</label> 
-        <input type="text" name="department" value="<?= htmlspecialchars($application['department'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
+        <input type="text" required name="department" value="<?= htmlspecialchars($application['department'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
       </div> 
 
       <div> 
         <label>Semester</label> 
-        <input type="text" name="year_semester" value="<?= htmlspecialchars($application['year_semester'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
+        <input type="text" required name="year_semester" value="<?= htmlspecialchars($application['year_semester'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
       </div> 
 
       <div> 
         <label>Date of Birth</label> 
-        <input type="date" name="dob" value="<?= $application['dob'] ?? '' ?>" <?= !$editable ? 'readonly' : '' ?>> 
+        <input type="date" required name="dob" value="<?= $application['dob'] ?? '' ?>" <?= !$editable ? 'readonly' : '' ?>> 
       </div> 
 
       <div> 
         <label>Pin Code</label> 
-       <input type="text" name="pincode" maxlength="6" oninput="fetchDistance()" >
+       <input type="text" required name="pincode" maxlength="6" oninput="fetchDistance()" >
       </div> 
 
       <div> 
@@ -210,7 +210,7 @@ onkeydown="return event.key !=='Enter';">
       <h3>Priority Data</h3> 
 
       <label>Annual Family Income (INR)</label> 
-      <input type="number" name="annual_income" value="<?= htmlspecialchars($application['annual_income'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
+      <input type="number" required name="annual_income" value="<?= htmlspecialchars($application['annual_income'] ?? '') ?>" <?= !$editable ? 'readonly' : '' ?>> 
 
       <br><br> 
 
@@ -245,10 +245,10 @@ onkeydown="return event.key !=='Enter';">
     <h3>Documents</h3> 
     <p id=docinfo>Note: Documents may be submitted at the time of application or during admission. Any discrepancy between the submitted documents and the information provided in the application may result in appropriate action as per institutional rules.</p>
 
-    <label>Income Certificate (PDF)</label> 
+    <label>Income Certificate (PDF) </label> 
     <input type="file" name="income_certificate" <?= !$editable?'disabled':'' ?>><br><br> 
 
-    <label>PWD Certificate (PDF)</label> 
+    <label>PWD Certificate (if applicable)</label> 
     <input type="file" name="pwd_certificate" <?= !$editable?'disabled':'' ?>><br><br> 
 
     <label>Identity Proof (PDF)</label> 
@@ -270,44 +270,45 @@ onkeydown="return event.key !=='Enter';">
       <div class="form-grid"> 
         <div> 
           <label>New Password</label> 
-          <input type="password" name="new_password" <?= !$editable?'disabled':'' ?>> 
+          <input type="password" required name="new_password" <?= !$editable?'disabled':'' ?>> 
         </div> 
 
         <div> 
           <label>Confirm Password</label> 
-          <input type="password" name="confirm_password" <?= !$editable?'disabled':'' ?>> 
+          <input type="password" required name="confirm_password" <?= !$editable?'disabled':'' ?>> 
         </div> 
       </div> 
-      <p class="password-hint">Password must contain atleast 8 characters , including uppercase ,lowercase ,number and special characters.</p> 
+
+      <p class="password-hint">
+        Password must contain atleast 8 characters , including uppercase ,
+        lowercase ,number and special characters.
+      </p> 
     <?php endif; ?> 
   </div> 
-</div> 
 
-<div class="actions"> 
-  <button type="button" onclick="prevStep()">Back</button> 
+  <!-- ACTION BUTTONS MOVED HERE -->
+  <div class="actions"> 
+    <button type="button" onclick="prevStep()">Back</button> 
 
-  <?php if ($editable): ?>
+    <?php if ($editable): ?>
 
-    <button type="submit" name="action" value="save">
-      Save Application
-    </button>
+      <button type="submit"
+        name="action"
+        value="<?= $submitted ? 'update' : 'submit' ?>">
+      Submit
+      </button>
 
-    <button type="submit"
-            name="action"
-            value="submit"
-            onclick="return confirm('Once submitted, you cannot edit the application. Are you sure?');">
-      Final Submit
-    </button>
+    <?php elseif ($submitted): ?>
 
-  <?php elseif ($submitted): ?>
+      <button disabled>✅ Application Submitted</button>
 
-    <button disabled>✅ Application Submitted</button>
+    <?php else: ?>
 
-  <?php else: ?>
+      <button disabled>🔒 Editing Disabled</button>
 
-    <button disabled>🔒 Editing Disabled</button>
+    <?php endif; ?>
+  </div>
 
-  <?php endif; ?>
 </div>
  
 

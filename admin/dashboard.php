@@ -144,7 +144,6 @@ $allottedStudents = $conn->query("
 <li><a href="staff_feedback.php">Staff Feedback</a></li>
 <li><a href="announcements.php">Announcements</a></li>
 <li><a href="notifications.php">Notifications</a></li>
-<li><a href="fee_defaulters.php">Fee Defaulters</a></li>
 <li><a href="complaints.php">Complaints</a></li>
 <li><a href="../auth/logout.php">Logout</a></li>
 
@@ -221,6 +220,21 @@ $allottedStudents = $conn->query("
 <a href="admin_set_dates.php">Set Application Dates</a>
 
 <a href="calculate_priority.php">Calculate Priority</a>
+<?php
+
+$approved = $conn->query("
+SELECT COUNT(*) AS approved
+FROM hostel_applications
+WHERE status = 'approved'
+")->fetch_assoc()['approved'];
+
+$allotted = $conn->query("
+SELECT COUNT(*) AS allotted
+FROM students
+WHERE hostel_id IS NOT NULL
+")->fetch_assoc()['allotted'];
+
+?>
 
 <?php if($approved != $allotted): ?>
 

@@ -184,7 +184,6 @@ border-radius:8px;
 <li><a href="complaints.php">Complaints</a></li>
 <li><a href="staff_feedback.php">Staff Feedback</a></li>
 <li><a href="notifications.php">Notifications</a></li>
-<li><a href="fee_defaulters.php">Fee Defaulters</a></li>
 <li><a href="attendance.php">Attendance Tracker</a></li>
 <li><a href="gbm.php">GBM</a></li>
 <li><a href="../auth/logout.php">Logout</a></li>

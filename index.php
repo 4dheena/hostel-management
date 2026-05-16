@@ -112,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <div class="stats">
           <span><i class="fa-solid fa-bed"></i> 1200+ Units</span>
-          <span><i class="fa-solid fa-building"></i> 4 Blocks</span>
+          <span><i class="fa-solid fa-building"></i> 6 Blocks</span>
           <span><i class="fa-solid fa-shield-halved"></i> 24/7 Security</span>
         </div>
       </div>

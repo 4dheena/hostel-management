@@ -216,7 +216,7 @@ border:none;
 <a href="about.php">About</a>
 <a href="facilities.php">Facilities</a>
 <a href="contact.php">Contact</a>
-<a href="announcements.php">Announcements</a>
+<a href="announcement.php">Announcements</a>
 <a href="rules.php">Rules</a>
 <a href="forms.php">Forms</a>
 </div>

@@ -24,20 +24,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $edit_start  = $_POST['edit_start'];
     $edit_end    = $_POST['edit_end'];
 
-    $stmt = $conn->prepare("
-        UPDATE application_settings
-        SET start_date = ?, 
-            end_date = ?, 
-            edit_start = ?, 
-            edit_end = ?
-        WHERE id = 1
-    ");
-    $stmt->bind_param("ssss", $start, $end, $edit_start, $edit_end);
-    $stmt->execute();
+    // Convert to timestamps
+    $start_ts = strtotime($start);
+    $end_ts = strtotime($end);
+    $edit_start_ts = !empty($edit_start) ? strtotime($edit_start) : null;
+    $edit_end_ts = !empty($edit_end) ? strtotime($edit_end) : null;
 
-    $_SESSION['message'] = "✅ Dates updated successfully!";
-    header("Location: dashboard.php");
-    exit;
+    /* ===== VALIDATIONS ===== */
+
+    if ($end_ts <= $start_ts) {
+        echo "<script>alert('Application end date must be AFTER start date');</script>";
+    }
+
+    elseif ($edit_start_ts && $edit_start_ts < $end_ts) {
+        echo "<script>alert('Edit window must start AFTER application end date');</script>";
+    }
+
+    elseif ($edit_start_ts && $edit_end_ts && $edit_end_ts <= $edit_start_ts) {
+        echo "<script>alert('Edit window end must be AFTER edit start date');</script>";
+    }
+
+    else {
+        // ✅ Only update if valid
+        $stmt = $conn->prepare("
+            UPDATE application_settings
+            SET start_date = ?, 
+                end_date = ?, 
+                edit_start = ?, 
+                edit_end = ?
+            WHERE id = 1
+        ");
+        $stmt->bind_param("ssss", $start, $end, $edit_start, $edit_end);
+        $stmt->execute();
+
+        $_SESSION['message'] = "✅ Dates updated successfully!";
+        header("Location: dashboard.php");
+        exit;
+    }
 }
 ?>
 
@@ -91,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="card">
   <h2>Application & Edit Window Settings</h2>
 
-  <form method="POST">
+  <form method="POST" id="dateForm">
 
     <label>Application Start Date</label>
     <input type="datetime-local" name="start_date"
@@ -114,6 +137,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <a href="dashboard.php" class="back-btn">← Back to Dashboard</a>
 </div>
+
+<!-- ================= FRONTEND VALIDATION ================= -->
+<script id="jsvalidate">
+document.getElementById("dateForm").addEventListener("submit", function(e) {
+
+    const start = new Date(document.querySelector("[name='start_date']").value);
+    const end = new Date(document.querySelector("[name='end_date']").value);
+    const editStartVal = document.querySelector("[name='edit_start']").value;
+    const editEndVal = document.querySelector("[name='edit_end']").value;
+
+    const editStart = editStartVal ? new Date(editStartVal) : null;
+    const editEnd = editEndVal ? new Date(editEndVal) : null;
+
+    if (end <= start) {
+        alert("Application end date must be AFTER start date");
+        e.preventDefault();
+        return;
+    }
+
+    if (editStart && editStart < end) {
+        alert("Edit window must start AFTER application end date");
+        e.preventDefault();
+        return;
+    }
+
+    if (editStart && editEnd && editEnd <= editStart) {
+        alert("Edit window end must be AFTER edit start date");
+        e.preventDefault();
+        return;
+    }
+
+});
+</script>
 
 </body>
 </html>
