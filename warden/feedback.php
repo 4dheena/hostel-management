@@ -207,19 +207,6 @@ body{
     </div>
 
 
-    <!-- MESS -->
-
-    <div class="section">
-
-        <h3>Mess Food</h3>
-
-        <div class="rating">
-            <?= str_repeat("★", $row['mess_rating']) ?>
-        </div>
-
-    </div>
-
-
     <!-- CLEANLINESS -->
 
     <div class="section">
@@ -258,6 +245,29 @@ body{
 
     </div>
 
+    <!-- FACILITIES -->
+
+    <div class="section">
+
+        <h3>Facilities</h3>
+
+        <div class="rating">
+            <?= str_repeat("★", $row['facility_rating']) ?>
+        </div>
+
+    </div>
+
+    <!-- SECURITY -->
+
+    <div class="section">
+
+        <h3>Security</h3>
+
+        <div class="rating">
+            <?= str_repeat("★", $row['security_rating']) ?>
+        </div>
+
+    </div>
 
     <!-- SUGGESTIONS -->
 

@@ -266,30 +266,6 @@ button:hover{
 </div>
         <form action="submit_feedback.php" method="POST">
 
-            <!-- MESS -->
-
-            <div class="rating-group">
-
-                <label>Mess Food</label>
-
-                <div class="stars">
-
-                    <?php for($i=5;$i>=1;$i--): ?>
-
-                    <input type="radio" 
-                    name="mess_rating" 
-                    value="<?= $i ?>" 
-                    id="mess<?= $i ?>" required>
-
-                    <label for="mess<?= $i ?>">★</label>
-
-                    <?php endfor; ?>
-
-                </div>
-
-            </div>
-
-
             <!-- CLEANLINESS -->
 
             <div class="rating-group">
@@ -358,6 +334,73 @@ button:hover{
                     <?php endfor; ?>
 
                 </div>
+                </div>
+
+                
+            <!-- FACILITIES -->
+
+            <div class="rating-group">
+
+                <label>Facilities</label>
+
+                <div class="stars">
+
+                    <?php for($i=5;$i>=1;$i--): ?>
+
+                    <input type="radio" 
+                    name="facility_rating" 
+                    value="<?= $i ?>" 
+                    id="facility<?= $i ?>" required>
+
+                    <label for="facility<?= $i ?>">★</label>
+
+                    <?php endfor; ?>
+
+                </div>
+            </div>
+            
+            <!-- SECURITY -->
+
+            <div class="rating-group">
+
+                <label>Security</label>
+
+                <div class="stars">
+
+                    <?php for($i=5;$i>=1;$i--): ?>
+
+                    <input type="radio" 
+                    name="security_rating" 
+                    value="<?= $i ?>" 
+                    id="security<?= $i ?>" required>
+
+                    <label for="security<?= $i ?>">★</label>
+
+                    <?php endfor; ?>
+
+                </div>  
+                </div>
+            
+            <!-- OVERALL EXPERIENCE -->
+
+            <div class="rating-group">
+
+                <label>Overall Experience</label>
+
+                <div class="stars">
+
+                    <?php for($i=5;$i>=1;$i--): ?>
+
+                    <input type="radio" 
+                    name="overall_rating" 
+                    value="<?= $i ?>" 
+                    id="overall<?= $i ?>" required>
+
+                    <label for="overall<?= $i ?>">★</label>
+
+                    <?php endfor; ?>
+
+                </div>    
 
             </div>
 

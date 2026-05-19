@@ -256,14 +256,11 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 
 <a href="dashboard.php">Dashboard</a>
 <a href="attendance.php">Attendance</a>
-<a href="mess.php">Mess</a>
 <a href="gbm.php">GBM</a>
 <a href="chat.php">Community Chat</a>
 <a href="complaints.php">Complaints</a>
-<a href="services.php">Services</a>
 <a href="feedback.php">Feedback</a>
 <a href="announcements.php">Announcements</a>
-<a href="fees.php">Fee</a>
 <a href="notifications.php">Notifications</a>
 <a href="../auth/logout.php">Logout</a>
 

@@ -299,21 +299,6 @@ body{
     </div>
 
 
-    <!-- MESS -->
-
-    <div class="section">
-
-        <h3>Mess Food</h3>
-
-        <div class="rating">
-
-            <?= str_repeat("★", $row['mess_rating']) ?>
-
-        </div>
-
-    </div>
-
-
     <!-- CLEANLINESS -->
 
     <div class="section">

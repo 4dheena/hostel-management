@@ -43,13 +43,19 @@ $hostel_id = $student['hostel_id'];
 
 /* ================= GET FORM DATA ================= */
 
-$mess_rating = $_POST['mess_rating'];
 
 $cleanliness_rating = $_POST['cleanliness_rating'];
 
 $staff_rating = $_POST['staff_rating'];
 
 $warden_rating = $_POST['warden_rating'];
+
+$facility_rating = $_POST['facility_rating'];
+
+$security_rating = $_POST['security_rating'];
+
+$overall_rating = $_POST['overall_rating'];
+
 
 $suggestions = trim($_POST['suggestions']);
 
@@ -64,10 +70,12 @@ INSERT INTO feedback (
     student_id,
     hostel_id,
 
-    mess_rating,
     cleanliness_rating,
     staff_rating,
     warden_rating,
+    facility_rating,
+    security_rating,
+    overall_rating,
 
     suggestions,
 
@@ -75,20 +83,23 @@ INSERT INTO feedback (
 
 )
 
-VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
 
 $insert->bind_param(
-    "siiiiisi",
+    "siiiiiiisi",
 
     $student_id,
     $hostel_id,
 
-    $mess_rating,
+
     $cleanliness_rating,
     $staff_rating,
     $warden_rating,
+    $facility_rating,
+    $security_rating,   
+    $overall_rating,
 
     $suggestions,
 
