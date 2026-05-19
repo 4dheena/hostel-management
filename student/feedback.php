@@ -1,139 +1,411 @@
 <?php
+
 session_start();
-require_once "../database/db_connect.php";
-require_once "../database/notify.php";
+require_once '../database/db_connect.php';
+
+/* ================= SECURITY ================= */
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     header("Location: ../index.php");
-    exit();
+    exit;
 }
 
 $user_id = $_SESSION['user_id'];
 
-/* Fetch student hostel info */
-$stmt = $conn->prepare("SELECT student_id, name, hostel_id FROM students WHERE user_id = ? LIMIT 1");
+
+/* ================= GET STUDENT DETAILS ================= */
+
+$stmt = $conn->prepare("
+SELECT student_id, hostel_id
+FROM students
+WHERE user_id = ?
+LIMIT 1
+");
+
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
+
 $student = $stmt->get_result()->fetch_assoc();
 
 if (!$student) {
+
     die("Student record not found.");
 }
 
-$feedbackType = '';
-$comments = '';
-$success = '';
-$error = '';
+$student_id = $student['student_id'];
+$hostel_id = $student['hostel_id'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $feedbackType = $_POST['feedback_type'] ?? '';
-    $comments = trim($_POST['comments'] ?? '');
-
-    if (!$feedbackType || !$comments) {
-        $error = 'Please choose a feedback category and write your message.';
-    } elseif (strlen($comments) > 2000) {
-        $error = 'Feedback must be less than 2000 characters.';
-    } else {
-        $hostel_id = $student['hostel_id'];
-        $title = '';
-        $message = '';
-        $targetUserId = null;
-        $notificationType = '';
-
-        if ($feedbackType === 'warden_feedback') {
-            $title = 'Warden Feedback Submitted';
-            $message = "Student {$student['name']} ({$student['student_id']}) has submitted feedback about the warden: {$comments}";
-            $notificationType = 'warden_feedback';
-
-            $adminStmt = $conn->prepare("SELECT user_id FROM admins LIMIT 1");
-            $adminStmt->execute();
-            $admin = $adminStmt->get_result()->fetch_assoc();
-            $targetUserId = $admin['user_id'] ?? null;
-
-            if (!$targetUserId) {
-                $error = 'Unable to find the hostel admin. Please contact support.';
-            }
-        } elseif ($feedbackType === 'mess_feedback' || $feedbackType === 'staff_feedback') {
-            $title = $feedbackType === 'mess_feedback' ? 'Mess Feedback Submitted' : 'Staff Feedback Submitted';
-            $message = "Student {$student['name']} ({$student['student_id']}) has submitted feedback: {$comments}";
-            $notificationType = $feedbackType;
-
-            $wardenStmt = $conn->prepare("SELECT user_id FROM wardens WHERE hostel_id = ? LIMIT 1");
-            $wardenStmt->bind_param("i", $hostel_id);
-            $wardenStmt->execute();
-            $warden = $wardenStmt->get_result()->fetch_assoc();
-            $targetUserId = $warden['user_id'] ?? null;
-
-            if (!$targetUserId) {
-                $error = 'Unable to find your hostel warden. Please contact support.';
-            }
-        } else {
-            $error = 'Invalid feedback category selected.';
-        }
-
-        if (!$error && $targetUserId) {
-            createNotification($conn, $targetUserId, $hostel_id, $title, $message, $notificationType, null);
-            $success = 'Your feedback has been submitted successfully.';
-            $feedbackType = '';
-            $comments = '';
-        }
-    }
-}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<title>Student Feedback</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Hostel Feedback</title>
+
 <style>
-body{font-family:Segoe UI,Arial,sans-serif;background:#f3f6fb;color:#222;margin:0;padding:0;}
-.container{max-width:720px;margin:40px auto;padding:24px;background:white;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,0.08);}
-h1{margin-bottom:18px;font-size:28px;color:#1f3a72;}
-.note{margin-bottom:20px;padding:14px 18px;border-radius:10px;background:#eef5ff;color:#1a376c;border:1px solid #d2e3fb;}
-.form-group{margin-bottom:18px;}
-label{display:block;margin-bottom:8px;font-weight:600;}
-select,textarea{width:100%;border:1px solid #cbd4e7;border-radius:10px;padding:12px;font-size:15px;outline:none;transition:all .2s;}
-select:focus,textarea:focus{border-color:#5b8dee;box-shadow:0 0 0 3px rgba(91,142,238,0.14);}
-textarea{min-height:180px;resize:vertical;}
-.button{display:inline-block;padding:12px 22px;background:#1f3a72;color:white;border:none;border-radius:10px;font-size:15px;cursor:pointer;transition:background .2s;}
-.button:hover{background:#13306a;}
-.message{padding:14px 18px;border-radius:10px;margin-bottom:18px;}
-.success{background:#e6f7ea;color:#1e5e33;border:1px solid #b7e2bd;}
-.error{background:#ffe9e5;color:#8d2a20;border:1px solid #f5c1bb;}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+}
+
+.left-section{
+    width:50%;
+    background:
+    linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),
+    url('../assets/images/hostel.jpeg');
+
+    background-size:cover;
+    background-position:center;
+
+    display:flex;
+    justify-content:flex-start;
+    align-items:flex-end;
+
+    padding:60px;
+
+    color:white;
+}
+
+.left-content {
+    position: relative;
+    z-index: 2;
+}
+
+.left-content h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+.left-content p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 500px;
+}
+
+.right-section{
+    width:50%;
+    background:#f8f9fa;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    padding:40px;
+}
+
+.form-card{
+    background:white;
+    width:100%;
+    max-width:600px;
+
+    padding:40px;
+
+    border-radius:14px;
+
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
+}
+
+.form-card h2{
+    margin-bottom:30px;
+    color:#333;
+}
+
+.rating-group{
+    margin-bottom:25px;
+}
+
+.rating-group label{
+    display:block;
+    margin-bottom:10px;
+    font-weight:bold;
+    color:#444;
+}
+
+.stars{
+    display:flex;
+    flex-direction:row-reverse;
+    justify-content:flex-end;
+    gap:8px;
+}
+
+.stars input{
+    display:none;
+}
+
+.stars label{
+    font-size:30px;
+    color:#ccc;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+/* HOVER EFFECT */
+
+.stars label:hover,
+.stars label:hover ~ label{
+    color:#ffc107;
+}
+
+/* SELECTED STARS */
+
+.stars input:checked ~ label{
+    color:#ffc107;
+}
+
+textarea{
+    width:100%;
+    min-height:140px;
+
+    padding:15px;
+
+    border:1px solid #ccc;
+    border-radius:8px;
+
+    resize:none;
+
+    margin-top:10px;
+}
+
+button{
+    width:100%;
+
+    padding:14px;
+
+    background:#007bff;
+    color:white;
+
+    border:none;
+    border-radius:8px;
+
+    font-size:16px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    margin-top:25px;
+}
+
+button:hover{
+    background:#0056b3;
+}
+
+@media(max-width:900px){
+
+    body{
+        flex-direction:column;
+    }
+
+    .left-section,
+    .right-section{
+        width:100%;
+    }
+
+    .left-section{
+        min-height:300px;
+    }
+}
+
 </style>
+
 </head>
+
 <body>
-<div class="container">
-<h1>Submit Feedback</h1>
-<p class="note">Choose the correct feedback category. Warden feedback will notify the admin, while mess and staff feedback will notify your hostel warden.</p>
 
-<?php if ($error): ?>
-<div class="message error"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
+<!-- LEFT SIDE -->
 
-<?php if ($success): ?>
-<div class="message success"><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
+<div class="left-section">
 
-<form method="post" action="">
-<div class="form-group">
-<label for="feedback_type">Feedback Category</label>
-<select id="feedback_type" name="feedback_type" required>
-<option value="">Select feedback type</option>
-<option value="warden_feedback" <?= $feedbackType === 'warden_feedback' ? 'selected' : '' ?>>Warden Feedback</option>
-<option value="mess_feedback" <?= $feedbackType === 'mess_feedback' ? 'selected' : '' ?>>Mess Feedback</option>
-<option value="staff_feedback" <?= $feedbackType === 'staff_feedback' ? 'selected' : '' ?>>Staff Feedback</option>
-</select>
+    <div class="left-content">
+
+        <h1>We Value Your Feedback</h1>
+
+        <p>
+            Your feedback helps us improve hostel facilities,
+            student experience, cleanliness, food quality,
+            and overall hostel life.
+        </p>
+
+    </div>
+
 </div>
 
-<div class="form-group">
-<label for="comments">Feedback Details</label>
-<textarea id="comments" name="comments" required><?= htmlspecialchars($comments) ?></textarea>
+
+<!-- RIGHT SIDE -->
+
+<div class="right-section">
+
+    <div class="form-card">
+
+        <h2>Hostel Feedback Form</h2>
+        <div class="rating-group">
+
+    <label style="font-size:18px;">
+        How would you describe your hostel experience overall?
+    </label>
+
+    <p style="
+    color:#666;
+    margin-top:8px;
+    line-height:1.6;">
+        Please rate the following facilities and services based on your experience.
+    </p>
+
+</div>
+        <form action="submit_feedback.php" method="POST">
+
+            <!-- MESS -->
+
+            <div class="rating-group">
+
+                <label>Mess Food</label>
+
+                <div class="stars">
+
+                    <?php for($i=5;$i>=1;$i--): ?>
+
+                    <input type="radio" 
+                    name="mess_rating" 
+                    value="<?= $i ?>" 
+                    id="mess<?= $i ?>" required>
+
+                    <label for="mess<?= $i ?>">★</label>
+
+                    <?php endfor; ?>
+
+                </div>
+
+            </div>
+
+
+            <!-- CLEANLINESS -->
+
+            <div class="rating-group">
+
+                <label>Cleanliness</label>
+
+                <div class="stars">
+
+                    <?php for($i=5;$i>=1;$i--): ?>
+
+                    <input type="radio" 
+                    name="cleanliness_rating" 
+                    value="<?= $i ?>" 
+                    id="clean<?= $i ?>" required>
+
+                    <label for="clean<?= $i ?>">★</label>
+
+                    <?php endfor; ?>
+
+                </div>
+
+            </div>
+
+
+            <!-- STAFF -->
+
+            <div class="rating-group">
+
+                <label>Staff Behaviour</label>
+
+                <div class="stars">
+
+                    <?php for($i=5;$i>=1;$i--): ?>
+
+                    <input type="radio" 
+                    name="staff_rating" 
+                    value="<?= $i ?>" 
+                    id="staff<?= $i ?>" required>
+
+                    <label for="staff<?= $i ?>">★</label>
+
+                    <?php endfor; ?>
+
+                </div>
+
+            </div>
+
+
+            <!-- WARDEN -->
+
+            <div class="rating-group">
+
+                <label>Warden Support</label>
+
+                <div class="stars">
+
+                    <?php for($i=5;$i>=1;$i--): ?>
+
+                    <input type="radio" 
+                    name="warden_rating" 
+                    value="<?= $i ?>" 
+                    id="warden<?= $i ?>" required>
+
+                    <label for="warden<?= $i ?>">★</label>
+
+                    <?php endfor; ?>
+
+                </div>
+
+            </div>
+
+
+            <!-- SUGGESTIONS -->
+
+            <div class="rating-group">
+
+                <label>Suggestions / Feedback</label>
+
+                <textarea 
+                name="suggestions"
+                placeholder="Share your suggestions or concerns..."></textarea>
+
+            </div>
+           <div class="rating-group">
+
+    <label style="
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    font-weight:normal;">
+
+        <input 
+        type="checkbox" 
+        name="is_anonymous"
+        value="1"
+        style="
+        width:18px;
+        height:18px;
+        cursor:pointer;">
+
+        Submit feedback anonymously
+
+    </label>
+
 </div>
 
-<button type="submit" class="button">Submit Feedback</button>
-</form>
+            <button type="submit">
+                Submit Feedback
+            </button>
+
+        </form>
+
+    </div>
+
 </div>
+
 </body>
 </html>

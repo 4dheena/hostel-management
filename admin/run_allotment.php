@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once '../database/db_connect.php';
-
+require '../mailer/send_email.php';
 /* ================= ADMIN SECURITY ================= */
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
@@ -10,33 +10,30 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 
-/* ================= SAFETY CHECK ================= */
+/* ================= RESET OLD ALLOTMENT STATUS ================= */
 
-$check = $conn->query("
-SELECT COUNT(*) AS remaining
-FROM students
-WHERE hostel_id IS NULL
+$conn->query("
+UPDATE hostel_applications
+SET allotment_status = 'pending',
+    allotted_hostel_id = NULL,
+    allotted_room_id = NULL
+WHERE application_status = 'approved'
 ");
 
-$row = $check->fetch_assoc();
 
-if ($row['remaining'] == 0) {
+/* ================= CLEAR OLD STUDENTS ================= */
 
-    $_SESSION['message'] = "⚠ All students have already been allotted. No action taken.";
-        header("Location: dashboard.php");
-        exit;;
-
-    exit;
-}
+$conn->query("DELETE FROM students");
 
 
-/* ================= FETCH STUDENTS ================= */
+/* ================= FETCH APPROVED STUDENTS ================= */
 
 $studentsQuery = $conn->query("
-SELECT id, gender
-FROM students
-WHERE hostel_id IS NULL
-ORDER BY id
+SELECT id, gender, priority_score
+FROM hostel_applications
+WHERE application_status = 'approved'
+AND allotment_status = 'pending'
+ORDER BY priority_score DESC
 ");
 
 $students = [];
@@ -49,9 +46,10 @@ while ($row = $studentsQuery->fetch_assoc()) {
     ];
 }
 
+
 if (count($students) == 0) {
 
-    $_SESSION['message'] = "⚠ No students available for allotment.";
+    $_SESSION['message'] = "⚠ No approved students available for allotment.";
     header("Location: dashboard.php");
     exit;
 }
@@ -107,7 +105,7 @@ foreach ($students as $student) {
 
     $assigned = false;
 
-    $student_id = $student['id'];
+    $application_id = $student['id'];
     $student_gender = $student['gender'];
 
     for ($i = 0; $i < $total_hostels; $i++) {
@@ -121,8 +119,9 @@ foreach ($students as $student) {
 
             $occupancyCheck = $conn->query("
             SELECT COUNT(*) AS occupants
-            FROM students
-            WHERE room_id = {$room['room_id']}
+            FROM hostel_applications
+            WHERE allotted_room_id = {$room['room_id']}
+            AND allotment_status IN ('allotted', 'accepted')
             ");
 
             $occupancy = $occupancyCheck->fetch_assoc()['occupants'];
@@ -136,8 +135,9 @@ foreach ($students as $student) {
 
             $genderCheck = $conn->query("
             SELECT gender
-            FROM students
-            WHERE room_id = {$room['room_id']}
+            FROM hostel_applications
+            WHERE allotted_room_id = {$room['room_id']}
+            AND allotment_status IN ('allotted', 'accepted')
             LIMIT 1
             ");
 
@@ -151,41 +151,165 @@ foreach ($students as $student) {
             /* ================= ASSIGN ROOM ================= */
 
             $stmt = $conn->prepare("
-            UPDATE students
-            SET hostel_id = ?, room_id = ?
+            UPDATE hostel_applications
+            SET
+                allotment_status = 'allotted',
+                allotted_hostel_id = ?,
+                allotted_room_id = ?
             WHERE id = ?
             ");
 
-            $stmt->bind_param("iii", $hid, $room['room_id'], $student_id);
+            $stmt->bind_param("iii", $hid, $room['room_id'], $application_id);
             $stmt->execute();
 
-            $assigned = true;
 
-            /* MOVE POINTER FOR BALANCED HOSTELS */
+            /* ================= GET APPLICATION DATA ================= */
+
+            $appQuery = $conn->prepare("
+            SELECT
+                student_id,
+                full_name,
+                personal_email,
+                phone,
+                password_hash
+            FROM hostel_applications
+            WHERE id = ?
+            ");
+
+            $appQuery->bind_param("i", $application_id);
+            $appQuery->execute();
+
+            $appData = $appQuery->get_result()->fetch_assoc();
+
+            $student_id = $appData['student_id'];
+            $name = $appData['full_name'];
+            $email = $appData['personal_email'];
+            $phone = $appData['phone'];
+            $password_hash = $appData['password_hash'];
+
+
+            /* ================= CREATE USER IF NOT EXISTS ================= */
+
+            $checkUser = $conn->prepare("
+            SELECT user_id
+            FROM users
+            WHERE username = ?
+            ");
+
+            $checkUser->bind_param("s", $student_id);
+            $checkUser->execute();
+
+            $userResult = $checkUser->get_result();
+
+
+            if ($userResult->num_rows == 0) {
+
+                $insertUser = $conn->prepare("
+                INSERT INTO users (username, password, role)
+                VALUES (?, ?, 'student')
+                ");
+
+                $insertUser->bind_param("ss", $student_id, $password_hash);
+                $insertUser->execute();
+
+                $user_id = $insertUser->insert_id;
+
+            } else {
+
+                $userRow = $userResult->fetch_assoc();
+                $user_id = $userRow['user_id'];
+            }
+
+
+            /* ================= INSERT INTO STUDENTS ================= */
+
+            $insertStudent = $conn->prepare("
+            INSERT INTO students
+            (student_id, user_id, name, email, phone, hostel_id, room_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+
+            $insertStudent->bind_param(
+                "sisssii",
+                $student_id,
+                $user_id,
+                $name,
+                $email,
+                $phone,
+                $hid,
+                $room['room_id']
+            );
+
+            $insertStudent->execute();
+
+
+            $assigned = true;
+            /* ================= SEND ALLOTMENT EMAIL ================= */
+
+
+
+$hostelQuery = $conn->query("
+SELECT hostel_name
+FROM hostels
+WHERE hostel_id = $hid
+");
+
+$hostelData = $hostelQuery->fetch_assoc();
+
+$hostel_name = $hostelData['hostel_name'];
+
+$subject = "Hostel Allotment Confirmation";
+
+$message = "
+Dear $name,<br><br>
+
+Congratulations! Your hostel allotment has been completed successfully.<br><br>
+
+<b>Hostel:</b> $hostel_name <br>
+<b>Room Number:</b> {$room['room_id']} <br><br>
+
+You can now log in to the hostel portal using your student credentials and view your allotment slip.<br><br>
+
+Regards,<br>
+Hostel Administration
+";
+
+sendMail($email, $subject, $message);
+
+            /* ================= MOVE POINTER ================= */
 
             $hostel_pointer = ($hostel_pointer + 1) % $total_hostels;
 
             break;
         }
 
-        if ($assigned) break;
+        if ($assigned) {
+            break;
+        }
 
         $hostel_pointer = ($hostel_pointer + 1) % $total_hostels;
     }
 
 
+    /* ================= WAITLIST ================= */
+
     if (!$assigned) {
 
-        $_SESSION['message'] = "⚠ No available rooms left. Please check hostel capacity.";
-        header("Location: dashboard.php");
-        exit;
+        $waitStmt = $conn->prepare("
+        UPDATE hostel_applications
+        SET allotment_status = 'waitlisted'
+        WHERE id = ?
+        ");
+
+        $waitStmt->bind_param("i", $application_id);
+        $waitStmt->execute();
     }
 }
 
 
 /* ================= SUCCESS ================= */
 
-$_SESSION['message'] = "✅ Allotment completed successfully.";
+$_SESSION['message'] = "✅ Allotment process completed successfully.";
 
 header("Location: dashboard.php");
 exit;

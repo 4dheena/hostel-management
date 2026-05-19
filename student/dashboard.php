@@ -260,9 +260,10 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 <a href="gbm.php">GBM</a>
 <a href="chat.php">Community Chat</a>
 <a href="complaints.php">Complaints</a>
-<a href="fees.php">Fees</a>
-<a href="feedback.php">Feedback</a>
 <a href="services.php">Services</a>
+<a href="feedback.php">Feedback</a>
+<a href="announcements.php">Announcements</a>
+<a href="fees.php">Fee</a>
 <a href="notifications.php">Notifications</a>
 <a href="../auth/logout.php">Logout</a>
 
@@ -330,14 +331,6 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 
 </div>
 
-<!-- Announcements -->
-
-<div class="announcements">
-
-<h3>Announcements</h3>
-<p>No announcements available</p>
-
-</div>
 
 </div>
 

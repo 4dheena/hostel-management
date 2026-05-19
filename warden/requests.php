@@ -29,8 +29,7 @@ $hostel_id = $warden['hostel_id'];
 
 $stmt_guest = $conn->prepare("
 SELECT * FROM guest_requests 
-WHERE overall_status='warden_review' 
-AND hostel_id=? 
+WHERE hostel_id=? 
 ORDER BY submitted_at DESC
 ");
 
@@ -190,7 +189,7 @@ padding:8px;
 
 <?php if($guest_result->num_rows == 0): ?>
 
-<p>No guest requests pending.</p>
+<p>No guest requests submitted.</p>
 
 <?php else: ?>
 
@@ -238,8 +237,8 @@ None
 <td>
 
 <?php if(
-$row['inmate_status'] == 'approved' ||
-$row['inmate_status'] == 'rejected'
+$row['warden_status'] == 'approved' ||
+$row['warden_status'] == 'rejected'
 ): ?>
 
 <button class="reviewed" disabled>
@@ -310,7 +309,7 @@ $b_data = mysqli_fetch_assoc($res_b);
 
 <div class="notification-card">
 
-<h4>Swap Request #<?= $srow['id'] ?></h4>
+<h4>Swap Request</h4>
 
 <p>
 

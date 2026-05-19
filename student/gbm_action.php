@@ -97,6 +97,42 @@ if($action === "react"){
     }
 }
 
+/* ===================== DELETE SUGGESTION ===================== */
+if($action === "delete_suggestion"){
+
+    $suggestion_id = $_POST['suggestion_id'] ?? '';
+
+    if($suggestion_id){
+
+        /* VERIFY OWNER */
+
+        $check = mysqli_query($conn,"
+        SELECT student_id 
+        FROM gbm_suggestions
+        WHERE id='$suggestion_id'
+        ");
+
+        $suggestion = mysqli_fetch_assoc($check);
+
+        if($suggestion && trim($suggestion['student_id']) == trim($student_id)){
+
+            /* DELETE REACTIONS FIRST */
+
+            mysqli_query($conn,"
+            DELETE FROM gbm_reactions
+            WHERE suggestion_id='$suggestion_id'
+            ");
+
+            /* DELETE SUGGESTION */
+
+            mysqli_query($conn,"
+            DELETE FROM gbm_suggestions
+            WHERE id='$suggestion_id'
+            ");
+        }
+    }
+}
+
 /* 🔁 ALWAYS RETURN TO SAME PAGE */
 header("Location: gbm.php");
 exit();

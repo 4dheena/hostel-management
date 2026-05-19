@@ -182,9 +182,10 @@ border-radius:8px;
 
 <li class="active"><a href="dashboard.php">Dashboard</a></li>
 <li><a href="complaints.php">Complaints</a></li>
-<li><a href="staff_feedback.php">Staff Feedback</a></li>
+<li><a href="feedback.php">Feedback</a></li>
 <li><a href="notifications.php">Notifications</a></li>
 <li><a href="attendance.php">Attendance Tracker</a></li>
+<li><a href="announcements.php">Announcements</a></li>
 <li><a href="gbm.php">GBM</a></li>
 <li><a href="../auth/logout.php">Logout</a></li>
 
@@ -271,32 +272,6 @@ border-radius:8px;
 </div>
 
 </section>
-
-
-<!-- ANNOUNCEMENTS -->
-
-<section class="announcement-box">
-
-<h3>General Announcements</h3>
-
-<ul>
-
-<?php while($row = $announcements->fetch_assoc()): ?>
-
-<li>
-<strong><?= htmlspecialchars($row['title']) ?></strong><br>
-<?= htmlspecialchars($row['message']) ?>
-</li>
-
-<?php endwhile; ?>
-
-</ul>
-
-</section>
-
-</main>
-</div>
-
 
 <script>
 

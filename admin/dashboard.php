@@ -16,7 +16,7 @@ $user_id = $_SESSION['user_id'];
 $approvedQuery = $conn->query("
 SELECT COUNT(*) AS approved
 FROM hostel_applications
-WHERE status = 'approved'
+WHERE application_status = 'approved'
 ");
 
 $approved = $approvedQuery->fetch_assoc()['approved'];
@@ -77,7 +77,7 @@ $rankStatus = $conn->query("
 $allottedStudents = $conn->query("
     SELECT COUNT(*) AS total 
     FROM hostel_applications 
-    WHERE status = 'approved'
+    WHERE application_status = 'approved'
 ")->fetch_assoc()['total'];
 
 
@@ -141,7 +141,7 @@ $allottedStudents = $conn->query("
 <li><a href="analytics.php">Analytics</a></li>
 <li><a href="application_approval.php">Application Approval</a></li>
 <li><a href="manage_warden.php">Manage Warden</a></li>
-<li><a href="staff_feedback.php">Staff Feedback</a></li>
+<li><a href="feedback.php">Feedback</a></li>
 <li><a href="announcements.php">Announcements</a></li>
 <li><a href="notifications.php">Notifications</a></li>
 <li><a href="complaints.php">Complaints</a></li>
@@ -220,40 +220,9 @@ $allottedStudents = $conn->query("
 <a href="admin_set_dates.php">Set Application Dates</a>
 
 <a href="calculate_priority.php">Calculate Priority</a>
-<?php
 
-$approved = $conn->query("
-SELECT COUNT(*) AS approved
-FROM hostel_applications
-WHERE status = 'approved'
-")->fetch_assoc()['approved'];
+<a href="run_allotment.php" class="btn">Run Allotment</a>
 
-$allotted = $conn->query("
-SELECT COUNT(*) AS allotted
-FROM students
-WHERE hostel_id IS NOT NULL
-")->fetch_assoc()['allotted'];
-
-?>
-
-<?php if($approved != $allotted): ?>
-
-<a href="run_allotment.php" class="btn">
-Run Allotment
-</a>
-
-<?php else: ?>
-
-<div style="background:#fff3cd;
-color:#856404;
-padding:10px;
-border-radius:6px;
-font-weight:bold;
-margin-top:10px;">
-Allotment already completed. Please reset allotment to run again.
-</div>
-
-<?php endif; ?>
 
 </section>
 

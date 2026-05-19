@@ -30,7 +30,7 @@ form{
 margin-bottom:40px;
 }
 
-input,textarea{
+input,textarea,select{
 width:100%;
 padding:8px;
 margin-top:5px;
@@ -77,6 +77,13 @@ background:#f4f4f4;
 
 <label>Message</label>
 <textarea name="message" rows="4" required></textarea>
+
+<label>Target Audience</label>
+
+<select name="target" required>
+<option value="student">Students</option>
+<option value="hostel">Hostel (Students + Wardens)</option>
+</select>
 
 <label>Upload PDF (optional)</label>
 <input type="file" name="file" accept="application/pdf">

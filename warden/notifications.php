@@ -36,12 +36,12 @@ reference_id,
 MAX(created_at) AS created_at,
 MAX(is_read) AS is_read
 FROM notifications
-WHERE hostel_id = ?
+WHERE user_id = ?
 GROUP BY reference_id, type
 ORDER BY created_at DESC
 ");
 
-$query->bind_param("i",$hostel_id);
+$query->bind_param("i",$user_id);
 $query->execute();
 $notifications = $query->get_result();
 ?>
@@ -69,6 +69,11 @@ body{font-family:Arial;background:#f4f6f9;padding:40px;}
 <body>
 
 <h2>Notifications</h2>
+<?php if($notifications->num_rows == 0): ?>
+
+<p>No notifications available.</p>
+
+<?php else: ?>
 
 <?php while($row = $notifications->fetch_assoc()): ?>
 
@@ -116,7 +121,7 @@ Review
 </div>
 
 <?php endwhile; ?>
-
+<?php endif; ?>
 
 <!-- MODAL -->
 <div id="modal" class="modal">

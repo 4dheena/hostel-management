@@ -3,18 +3,28 @@ require_once '../database/db_connect.php';
 
 $query = "
     SELECT
-        id,
-        full_name,
-        student_id,
-        department,
-        distance_km,
-        annual_income,
-        pwd_status,
-        disability_percentage,
-        priority_score
-    FROM hostel_applications
-    WHERE status = 'approved'
-    ORDER BY priority_score DESC, distance_km DESC
+        ha.id,
+        ha.full_name,
+        ha.student_id,
+        ha.department,
+        ha.distance_km,
+        ha.annual_income,
+        ha.pwd_status,
+        ha.disability_percentage,
+        ha.priority_score,
+        h.hostel_name
+    FROM hostel_applications ha
+
+    LEFT JOIN students s
+        ON ha.student_id = s.student_id
+
+    LEFT JOIN hostels h
+        ON s.hostel_id = h.hostel_id
+
+    WHERE ha.status = 'approved'
+
+    ORDER BY ha.priority_score DESC,
+             ha.distance_km DESC
 ";
 
 $result = $conn->query($query);
@@ -83,6 +93,7 @@ Rank list published successfully.
 <th>Distance (km)</th>
 <th>Income</th>
 <th>PWD</th>
+<th>Hostel Name</th>
 <th>Score</th>
 </tr>
 
@@ -120,7 +131,9 @@ echo "No";
 ?>
 </td>
 
+<td><?php echo $row['hostel_name']; ?></td>
 <td><?php echo $row['priority_score']; ?></td>
+
 
 </tr>
 

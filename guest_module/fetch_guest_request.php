@@ -12,7 +12,7 @@ $request_id = $_GET['id'];
 /* FETCH GUEST REQUEST DETAILS */
 
 $stmt = $conn->prepare("
-SELECT guest_name, guest_email, guest_phone, request_message,stay_from, stay_to
+SELECT guest_name, guest_email, guest_phone, request_message,stay_from, stay_to,hostel_id, room_number 
 FROM guest_requests
 WHERE id = ?
 ");

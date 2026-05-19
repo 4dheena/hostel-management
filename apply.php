@@ -133,7 +133,7 @@ $distance_km = $application['distance_km'] ?? '';
   <div class="step" onclick="showStep(4)">Account Security</div> 
 </div> 
 
-<form method="POST" action="save_application.php" enctype="multipart/form-data" onsubmit="return validatePassword();"
+<form method="POST" action="save_application.php" target="hiddenFrame" enctype="multipart/form-data" onsubmit="return validatePassword();"
 onkeydown="return event.key !=='Enter';"> 
 
 <!-- ================= STEP 1 ================= --> 
@@ -400,6 +400,6 @@ function fetchDistance() {
 }
 </script>
 
-
+<iframe name="hiddenFrame" style="display:none;"></iframe>
 </body> 
 </html>

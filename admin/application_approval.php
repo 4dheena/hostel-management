@@ -7,27 +7,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
-/* ================= FETCH CAPACITY INFO ================= */
-
-$capacityQuery = $conn->query("
-SELECT SUM(capacity) AS total_capacity 
-FROM hostels
-");
-
-$total_capacity = $capacityQuery->fetch_assoc()['total_capacity'];
-
-/* COUNT APPROVED STUDENTS */
-
-$approvedQuery = $conn->query("
-SELECT COUNT(*) AS approved_students
-FROM hostel_applications
-WHERE status='approved'
-");
-
-$approved_students = $approvedQuery->fetch_assoc()['approved_students'];
-
-$remaining_seats = $total_capacity - $approved_students;
-
 
 /* ================= FETCH APPLICATIONS ================= */
 
@@ -135,15 +114,6 @@ background:#0056b3;
 
 <h2>Application Approval</h2>
 
-<!-- Capacity Information -->
-
-<div class="capacity-box">
-
-Total Capacity: <?= $total_capacity ?> |
-Approved Students: <?= $approved_students ?> |
-Remaining Seats: <?= $remaining_seats ?>
-
-</div>
 
 <?php
 if($result->num_rows == 0){
@@ -175,7 +145,7 @@ Mark All Approved
 <th>Distance (km)</th>
 <th>PWD</th>
 <th>Certificates</th>
-<th>Status</th>
+<th>Application Status</th>
 </tr>
 
 <?php while($row = $result->fetch_assoc()): ?>
@@ -202,17 +172,17 @@ Mark All Approved
 $hasFile = false;
 
 if(!empty($row['income_certificate'])){
-echo '<a href="../'.$row['income_certificate'].'" target="_blank">Income</a><br>';
+echo '<a href="../uploads/applications/'.$row['income_certificate'].'" target="_blank">Income</a><br>';
 $hasFile = true;
 }
 
 if(!empty($row['pwd_certificate'])){
-echo '<a href="../'.$row['pwd_certificate'].'" target="_blank">PWD</a><br>';
+echo '<a href="../uploads/applications/'.$row['pwd_certificate'].'" target="_blank">PWD</a><br>';
 $hasFile = true;
 }
 
 if(!empty($row['id_proof'])){
-echo '<a href="../'.$row['id_proof'].'" target="_blank">ID</a>';
+echo '<a href="../uploads/applications/'.$row['id_proof'].'" target="_blank">ID</a>';
 $hasFile = true;
 }
 
@@ -225,20 +195,20 @@ echo "Not Uploaded";
 
 <td>
 
-<select name="status[<?= $row['id'] ?>]" class="status-dropdown">
+<select name="application_status[<?= $row['id'] ?>]" class="status-dropdown">
 
 <option value="pending"
-<?= $row['status']=='pending' ? 'selected' : '' ?>>
+<?= $row['application_status']=='pending' ? 'selected' : '' ?>>
 Pending
 </option>
 
 <option value="approved"
-<?= $row['status']=='approved' ? 'selected' : '' ?>>
+<?= $row['application_status']=='approved' ? 'selected' : '' ?>>
 Approved
 </option>
 
 <option value="rejected"
-<?= $row['status']=='rejected' ? 'selected' : '' ?>>
+<?= $row['application_status']=='rejected' ? 'selected' : '' ?>>
 Rejected
 </option>
 
@@ -278,7 +248,7 @@ setTimeout(() => msg.remove(), 500);
 
 function approveAll() {
 
-let selects = document.querySelectorAll("select[name^='status']");
+let selects = document.querySelectorAll("select[name^='application_status']");
 
 selects.forEach(function(select){
 select.value = "approved";

@@ -6,10 +6,16 @@ $user_id = $_SESSION['user_id'];
 
 /* FETCH NOTIFICATIONS */
 $stmt = $conn->prepare("
-SELECT notifications.*, guest_requests.inmate_status
+SELECT notifications.*, guest_requests.inmate_status ,vacate_requests.request_status,room_swap_requests.a_status, room_swap_requests.b_status,room_swap_requests.student_a_id, room_swap_requests.student_b_id,students.student_id
 FROM notifications
 LEFT JOIN guest_requests
 ON notifications.reference_id = guest_requests.id
+LEFT JOIN vacate_requests
+ON notifications.reference_id = vacate_requests.id
+LEFT JOIN room_swap_requests
+ON notifications.reference_id = room_swap_requests.id
+LEFT JOIN students
+ON notifications.user_id = students.user_id
 WHERE notifications.user_id = ?
 ORDER BY notifications.created_at DESC
 ");
@@ -123,7 +129,6 @@ color:white;
 <p><?= htmlspecialchars($row['message']); ?></p>
 
 <!-- 🔹 GUEST -->
-<!-- 🔹 GUEST -->
 <?php if($row['type'] == 'guest_request'): ?>
 
 <?php if(
@@ -151,23 +156,72 @@ Review
 <!-- 🔹 ROOM SWAP -->
 <?php if($row['type'] == 'room_swap'): ?>
 
-<button
-class="review-btn"
-onclick="openSwapModal(<?= $row['reference_id']; ?>, this)">
-Inspect
-</button>
+<!-- CURRENT USER IS A -->
+<?php if(trim($row['student_id']) == trim($row['student_a_id'])): ?>
+
+    <?php if(
+    strtolower(trim($row['a_status'])) == 'accepted' ||
+    strtolower(trim($row['a_status'])) == 'rejected'
+    ): ?>
+
+        <button class="reviewed" disabled>
+        Reviewed
+        </button>
+
+    <?php else: ?>
+
+        <button
+        class="review-btn"
+        onclick="openSwapModal(<?= $row['reference_id']; ?>, this)">
+        Inspect
+        </button>
+
+    <?php endif; ?>
+
+
+<!-- CURRENT USER IS B -->
+<?php elseif(trim($row['student_id']) == trim($row['student_b_id'])): ?>
+
+    <?php if(
+    strtolower(trim($row['b_status'])) == 'accepted' ||
+    strtolower(trim($row['b_status'])) == 'rejected'
+    ): ?>
+
+        <button class="reviewed" disabled>
+        Reviewed
+        </button>
+
+    <?php else: ?>
+
+        <button
+        class="review-btn"
+        onclick="openSwapModal(<?= $row['reference_id']; ?>, this)">
+        Inspect
+        </button>
+
+    <?php endif; ?>
+
+<?php endif; ?>
 
 <?php endif; ?>
 
 <!-- 🔹 VACATE -->
 <?php if($row['type'] == 'vacate_request'): ?>
 
+<?php if(
+strtolower($row['request_status']) == 'confirmed'
+): ?>
+
+<button class="reviewed" disabled>
+Reviewed
+</button>    
+<?php else: ?>
 <button
 class="review-btn"
 onclick="openVacateModal(<?= $row['reference_id']; ?>, this)">
 Confirm
 </button>
-
+<?php endif; ?>
 <?php endif; ?>
 
 </div>

@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $title = trim($_POST['title']);
 $message = trim($_POST['message']);
-
+$target = $_POST['target'];
 $file_path = NULL;
 
 /* Handle file upload */
@@ -43,11 +43,11 @@ if(isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK){
 /* Insert announcement */
 
 $stmt = $conn->prepare("
-INSERT INTO announcements(title,message,file_path)
+INSERT INTO announcements(title,message,target,file_path)
 VALUES(?,?,?)
 ");
 
-$stmt->bind_param("sss",$title,$message,$file_path);
+$stmt->bind_param("sss",$title,$message,$target,$file_path);
 $stmt->execute();
 
 header("Location: announcements.php");

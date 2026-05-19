@@ -52,8 +52,8 @@ if($action == "approve"){
     /* DISABLE LOGIN */
     mysqli_query($conn,"
     UPDATE users 
-SET status='inactive'
-WHERE user_id='{$student['user_id']}'
+    SET status='inactive'
+    WHERE user_id='{$student['user_id']}'
     ");
 
     /* 🔔 NOTIFICATION */

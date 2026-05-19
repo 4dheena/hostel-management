@@ -2,7 +2,6 @@
 
 session_start();
 require_once '../database/db_connect.php';
-require_once '../fpdf/fpdf.php';
 
 /* ================= SECURITY ================= */
 
@@ -13,6 +12,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 
 $user_id = $_SESSION['user_id'];
 
+
 /* ================= FETCH STUDENT DATA ================= */
 
 $stmt = $conn->prepare("
@@ -21,14 +21,11 @@ SELECT
     s.name,
     s.email,
     s.phone,
+
     h.hostel_name,
     r.room_number,
 
-    mw.full_name AS male_warden,
-    mw.phone AS male_phone,
-
-    fw.full_name AS female_warden,
-    fw.phone AS female_phone
+    ha.allotment_status
 
 FROM students s
 
@@ -38,11 +35,8 @@ ON s.hostel_id = h.hostel_id
 LEFT JOIN rooms r 
 ON s.room_id = r.room_id
 
-LEFT JOIN wardens mw 
-ON h.hostel_id = mw.hostel_id AND mw.gender = 'Male'
-
-LEFT JOIN wardens fw 
-ON h.hostel_id = fw.hostel_id AND fw.gender = 'Female'
+LEFT JOIN hostel_applications ha
+ON s.student_id = ha.student_id
 
 WHERE s.user_id = ?
 LIMIT 1
@@ -50,109 +44,227 @@ LIMIT 1
 
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
+
 $data = $stmt->get_result()->fetch_assoc();
+
 
 /* ================= CHECK ALLOTMENT ================= */
 
 if (!$data || empty($data['hostel_name'])) {
 
-    $_SESSION['message'] = "⚠ You have not been allotted a hostel yet. Please check back later.";
+    $_SESSION['message'] = "⚠ You have not been allotted a hostel yet.";
     header("Location: dashboard.php");
     exit;
 }
 
-/* ================= GENERATE PDF ================= */
-
-$pdf = new FPDF();
-$pdf->AddPage();
-
-/* TITLE */
-
-$pdf->SetFont('Arial','B',18);
-$pdf->Cell(0,10,'ARUVI HOSTELS',0,1,'C');
-
-$pdf->SetFont('Arial','',14);
-$pdf->Cell(0,8,'Official Hostel Allotment Letter',0,1,'C');
-
-$pdf->Ln(10);
-
-/* ================= STUDENT DETAILS ================= */
-
-$pdf->SetFont('Arial','B',12);
-$pdf->Cell(0,8,'Student Information',0,1);
-
-$pdf->SetFont('Arial','',12);
-
-$pdf->Cell(50,8,'Student ID:',0);
-$pdf->Cell(0,8,$data['student_id'],0,1);
-
-$pdf->Cell(50,8,'Name:',0);
-$pdf->Cell(0,8,$data['name'],0,1);
-
-$pdf->Cell(50,8,'Email:',0);
-$pdf->Cell(0,8,$data['email'],0,1);
-
-$pdf->Cell(50,8,'Phone:',0);
-$pdf->Cell(0,8,$data['phone'],0,1);
-
-$pdf->Ln(10);
-
-/* ================= HOSTEL DETAILS ================= */
-
-$pdf->SetFont('Arial','B',12);
-$pdf->Cell(0,8,'Hostel Allotment Details',0,1);
-
-$pdf->SetFont('Arial','',12);
-
-$pdf->Cell(50,8,'Hostel Name:',0);
-$pdf->Cell(0,8,$data['hostel_name'],0,1);
-
-$pdf->Cell(50,8,'Room Number:',0);
-$pdf->Cell(0,8,$data['room_number'],0,1);
-
-$pdf->Ln(10);
-
-/* ================= WARDEN DETAILS ================= */
-
-$pdf->SetFont('Arial','B',12);
-$pdf->Cell(0,8,'Warden Information',0,1);
-
-$pdf->SetFont('Arial','',12);
-
-$pdf->Cell(50,8,'Male Warden:',0);
-$pdf->Cell(0,8,$data['male_warden'],0,1);
-
-$pdf->Cell(50,8,'Contact:',0);
-$pdf->Cell(0,8,$data['male_phone'],0,1);
-
-$pdf->Ln(4);
-
-$pdf->Cell(50,8,'Female Warden:',0);
-$pdf->Cell(0,8,$data['female_warden'],0,1);
-
-$pdf->Cell(50,8,'Contact:',0);
-$pdf->Cell(0,8,$data['female_phone'],0,1);
-
-$pdf->Ln(20);
-
-/* ================= FOOTER ================= */
-
-$pdf->SetFont('Arial','I',10);
-
-$pdf->MultiCell(
-0,
-6,
-"This document serves as the official confirmation of hostel accommodation under Aruvi Hostels. 
-Students must strictly follow all hostel rules and regulations during their stay."
-);
-
-$pdf->Ln(15);
-
-$pdf->Cell(0,8,'Issued By: Aruvi Hostels Administration',0,1,'R');
-$pdf->Cell(0,8,date("d M Y"),0,1,'R');
-
-/* ================= OUTPUT PDF ================= */
-
-$pdf->Output('I','Hostel_Allotment.pdf');
-
 ?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>View Allotment</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 30px;
+}
+
+.container{
+    max-width: 800px;
+    margin: auto;
+}
+
+.card{
+    background: white;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.top-bar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.title{
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.print-btn{
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.section{
+    margin-top: 25px;
+}
+
+.section h3{
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.detail{
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.label{
+    font-weight: bold;
+    display: inline-block;
+    width: 180px;
+}
+
+.actions{
+    margin-top: 40px;
+    display: flex;
+    gap: 20px;
+}
+
+.accept-btn{
+    background: #28a745;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.reject-btn{
+    background: #dc3545;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.status-box{
+    margin-top: 30px;
+    padding: 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    background: #d4edda;
+    color: #155724;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+    <!-- TOP BAR -->
+
+    <div class="top-bar">
+
+        <div class="title">
+            Hostel Allotment Slip
+        </div>
+
+        <a href="download_allotment.php" class="print-btn">
+            Print Slip
+        </a>
+
+    </div>
+
+
+    <!-- STUDENT DETAILS -->
+
+    <div class="section">
+
+        <h3>Student Information</h3>
+
+        <div class="detail">
+            <span class="label">Student ID:</span>
+            <?= $data['student_id'] ?>
+        </div>
+
+        <div class="detail">
+            <span class="label">Name:</span>
+            <?= $data['name'] ?>
+        </div>
+
+        <div class="detail">
+            <span class="label">Email:</span>
+            <?= $data['email'] ?>
+        </div>
+
+        <div class="detail">
+            <span class="label">Phone:</span>
+            <?= $data['phone'] ?>
+        </div>
+
+    </div>
+
+
+    <!-- HOSTEL DETAILS -->
+
+    <div class="section">
+
+        <h3>Allotment Details</h3>
+
+        <div class="detail">
+            <span class="label">Hostel Name:</span>
+            <?= $data['hostel_name'] ?>
+        </div>
+
+        <div class="detail">
+            <span class="label">Room Number:</span>
+            <?= $data['room_number'] ?>
+        </div>
+
+    </div>
+
+
+    <!-- ACTION BUTTONS -->
+
+    <?php if($data['allotment_status'] == 'allotted'): ?>
+
+    <div class="actions">
+
+        <a href="accept_allotment.php" class="accept-btn">
+            Accept Allotment
+        </a>
+
+        <a href="reject_allotment.php" class="reject-btn">
+            Reject Allotment
+        </a>
+
+    </div>
+
+    <?php elseif($data['allotment_status'] == 'accepted'): ?>
+
+    <div class="status-box">
+        ✅ You have accepted this allotment.
+    </div>
+
+    <?php endif; ?>
+
+</div>
+
+</div>
+
+</body>
+</html>

@@ -71,7 +71,8 @@ border-radius:14px;
 box-shadow:0 6px 20px rgba(0,0,0,0.08);
 }
 
-input, textarea{
+input[type="text"],
+textarea{
 width:100%;
 padding:10px;
 margin-top:10px;
@@ -98,20 +99,35 @@ cursor:not-allowed;
 
 /* OPTION */
 .option{
+padding:12px;
 margin:10px 0;
-padding:10px;
-border-radius:8px;
-background:#f9fafc;
 border:1px solid #ddd;
+border-radius:10px;
+background:#fff;
 }
 
-/* PROGRESS */
+.option-top{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.option input[type="radio"]{
+margin:0;
+flex-shrink:0;
+}
+
+.option-info{
+font-size:16px;
+}
+
 .bar-container{
-margin-top:6px;
-background:#e5e7eb;
-border-radius:20px;
+width:100%;
 height:10px;
+background:#e5e7eb;
+border-radius:10px;
 overflow:hidden;
+margin-top:10px;
 }
 
 .bar{
@@ -220,14 +236,25 @@ $percent = ($total>0)?round(($opt['votes']/$total)*100):0;
 ?>
 
 <div class="option">
-<label>
-<input type="radio" name="option_id" value="<?= $opt['id']; ?>" required>
+
+<div class="option-top">
+
+<input 
+type="radio" 
+name="option_id" 
+value="<?= $opt['id']; ?>" 
+required>
+
+<div class="option-info">
 <?= $opt['option_text']; ?> (<?= $percent ?>%)
-</label>
+</div>
+
+</div>
 
 <div class="bar-container">
 <div class="bar" style="width:<?= $percent ?>%"></div>
 </div>
+
 </div>
 
 <?php endforeach; ?>

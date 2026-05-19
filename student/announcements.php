@@ -6,7 +6,6 @@ SELECT title, message, file_path, created_at
 FROM announcements
 WHERE target='student'
    OR target='hostel'
-   OR target='general'
 ORDER BY created_at DESC
 ";
 
