@@ -53,7 +53,46 @@ WHERE student_id = ?
 
 $update->bind_param("s", $student_id);
 $update->execute();
+/* ================= SEND REJECTION MAIL ================= */
 
+
+$mailQuery = $conn->prepare("
+SELECT full_name, personal_email
+FROM hostel_applications
+WHERE student_id = ?
+LIMIT 1
+");
+
+$mailQuery->bind_param("s", $student_id);
+$mailQuery->execute();
+
+$mailData = $mailQuery->get_result()->fetch_assoc();
+
+$name = $mailData['full_name'];
+$email = $mailData['personal_email'];
+
+
+/* EMAIL CONTENT */
+
+$subject = "Hostel Allotment Rejected";
+
+$message = "
+Dear $name,<br><br>
+
+Your hostel allotment has been cancelled as per your request.<br><br>
+
+Your hostel portal access has also been removed successfully.<br><br>
+
+If you wish to apply again in the future, please contact the hostel administration.<br><br>
+
+Regards,<br>
+Aruvi Hostels Administration
+";
+
+
+/* SEND MAIL */
+
+sendMail($email, $subject, $message);
 
 /* ================= DELETE FROM STUDENTS ================= */
 
